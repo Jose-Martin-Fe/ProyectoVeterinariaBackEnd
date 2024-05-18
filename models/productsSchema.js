@@ -1,0 +1,23 @@
+const mongoose = require("mongoose");
+
+const productSchema = new mongoose.Schema({
+  titulo: {
+    type: String,
+    required: true,
+  },
+  precio: {
+    type: Number,
+    required: true,
+  },
+
+  descripcion: {
+    type: String,
+    required: true,
+  },
+  image: {
+    type: String,
+  },
+});
+
+const ProducModel = mongoose.model("productos", productSchema);
+module.exports = ProducModel;
