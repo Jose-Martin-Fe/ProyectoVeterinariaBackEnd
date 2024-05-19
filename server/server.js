@@ -19,7 +19,7 @@ class Servidor {
 
   /* creamos un middleware para llamar las rutas */
   routes() {
-    /* this.app.use("/api/productos", require("../routes/products.routes")); */
+    this.app.use("/api/productos", require("../routes/products.routes"));
   }
 
   listen() {
