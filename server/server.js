@@ -1,8 +1,9 @@
+require("dotenv").config();
+require("../DB/config");
 const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
-require("dotenv").config();
-require("../DB/config");
+
 class Servidor {
   constructor() {
     this.app = express();
