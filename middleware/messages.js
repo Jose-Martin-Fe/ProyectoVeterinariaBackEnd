@@ -4,7 +4,7 @@ const welcomeUser = async (emailUsuario) => {
   /* const welcomeUser = async () => { */
   try {
     const info = await transporter.sendMail({
-      from: `"Veterinaria Patas y Garras" <${process.env.GMAIL_MAIL}>`, // sender address
+      from: `"Veterinaria Patas y Garras" <${process.env.GMAIL_MAIL}>`,
       to: `${emailUsuario}`, // list of receivers
       /* to: `${process.env.GMAIL_MAIL}`, */ // list of receivers
       subject: "Bienvenidos a Patas y Garras ", // Subject line
