@@ -2,15 +2,17 @@ const ProducModel = require("../models/productsSchema");
 
 const getProductos = async (req, res) => {
   try {
-    const to = req.query.to || 0;
-    const limit = req.query.limit || 10;
+    const page = req.query.page || 1;  
+    const limit = req.query.limit || 10; 
     const categoria = req.query.categoria;
 
     const query = categoria ? { categoria } : {};
 
+    const skip = (page - 1) * limit;
+
     const [products, count] = await Promise.all([
       ProducModel.find(query)
-        .skip(to * limit)
+        .skip(skip)
         .limit(limit),
       ProducModel.countDocuments(query),
     ]);
