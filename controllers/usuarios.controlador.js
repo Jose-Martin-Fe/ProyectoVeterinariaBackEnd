@@ -83,7 +83,7 @@ const createUser = async (req, res) => {
   }
 };
 
-const loginUser = async (req, res) => {
+/* const loginUser = async (req, res) => {
   try {
     const userExist = await userModel.findOne({
       nombreUsuario: req.body.nombreUsuario,
@@ -114,10 +114,10 @@ const loginUser = async (req, res) => {
       user: {
         id: userExist._id,
         role: userExist.role,
-        nombreUsuario: userExist.nombreUsuario,
-        /*       idCart: userExist.idCart,
+        nombreUsuario: userExist.nombreUsuario, */
+/*       idCart: userExist.idCart,
         idFav: userExist.idFav, */
-      },
+/*   },
     };
 
     const token = jwt.sign(payload, process.env.SECRET_KEY_JWT);
@@ -128,6 +128,71 @@ const loginUser = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ msg: "Error al crear el usuario", error });
+  }
+};
+
+const deleteLogic = async (req, res) => {
+  try {
+    const userDel = await userModel.findById({ _id: req.params.idUser });
+
+    if (userDel.deleted) {
+      return res.status(400).json({ msg: "El usuario ya fue eliminado" });
+    }
+
+    userDel.deleted = true;
+    await userDel.save();
+
+    res.status(200).json({ msg: "Usuario eliminado logicamente" });
+  } catch (error) {
+    console.log(error);
+  }
+}; */
+
+const loginUser = async (req, res) => {
+  try {
+    const userExist = await userModel.findOne({
+      nombreUsuario: req.body.nombreUsuario,
+    });
+
+    if (!userExist) {
+      return res
+        .status(400)
+        .json({ msg: "Usuario y/o contraseña no coinciden. USER" });
+    } else if (userExist.deleted) {
+      return res
+        .status(403)
+        .json({ msg: "Usuario bloqueado. Debe comunicarse con el admin" });
+    }
+
+    const verifyPass = await bcrypt.compare(
+      req.body.contrasenia,
+      userExist.contrasenia
+    );
+
+    if (!verifyPass) {
+      return res
+        .status(400)
+        .json({ msg: "Usuario y/o contraseña no coinciden. PASS" });
+    }
+
+    const payload = {
+      user: {
+        id: userExist._id,
+        role: userExist.role,
+        nombreUsuario: userExist.nombreUsuario,
+        idCart: userExist.idCart,
+        idFav: userExist.idFav,
+      },
+    };
+
+    const token = jwt.sign(payload, process.env.SECRET_KEY_JWT);
+
+    return res
+      .status(200)
+      .json({ msg: "Usuario logueado", token, role: userExist.role });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ msg: "Error al crear el usuario", error });
   }
 };
 
