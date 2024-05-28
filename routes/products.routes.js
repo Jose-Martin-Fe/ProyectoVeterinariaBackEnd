@@ -1,9 +1,17 @@
 const express = require("express");
-const { getProductos } = require("../controllers/productos.controlador");
+const {
+  getProductos,
+  getOneProducto,
+} = require("../controllers/productos.controlador");
+const { check } = require("express-validator");
 const router = express.Router();
 
 router.get("/", getProductos);
-router.get("/");
+router.get(
+  "/:id",
+  [check("id", "Formato ID incorrecto").isMongoId()],
+  getOneProducto
+);
 router.delete("/");
 router.post("/");
 
