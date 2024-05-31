@@ -39,47 +39,43 @@ const contacto = async (req, res) => {
   try {
     const { nombre, apellido, email, mensaje } = req.body;
 
-    const output = `
+    const outputCliente = `
       <p>Hola ${nombre} ${apellido},</p>
       <p>Gracias por contactarte, en breve nos pondremos en contacto contigo.</p>
       <p><strong>Mensaje:</strong> ${mensaje}</p>
     `;
 
-    let mailOptions = {
+    const mailOptionsCliente = {
       from: `"Veterinaria Patas y Garras" <${process.env.GMAIL_MAIL}>`,
-      to: `${email}`, // Aquí solo se envía al correo del cliente
+      to: email,
       subject: "Gracias por contactarnos",
       text: `Hola ${nombre} ${apellido}, gracias por contactarte, en breve nos pondremos en contacto contigo.\n\nMensaje de consulta:\n${mensaje}`,
     };
 
-    // Aquí se reenvía el mensaje al correo configurado en process.env.GMAIL_MAIL
-    let mailOptionsAdmin = {
+    const mailOptionsAdmin = {
       from: `"Veterinaria Patas y Garras" <${process.env.GMAIL_MAIL}>`,
-      to: `${process.env.GMAIL_MAIL}`,
+      to: process.env.GMAIL_MAIL,
       subject: `Consulta de ${nombre}`,
-      text: `Mensaje de consulta de ${nombre} ${apellido} :\n\n${mensaje} \n\nMail del cliente: ${email}`,
+      text: `Mensaje de consulta de ${nombre} ${apellido}:\n\n${mensaje} \n\nMail del cliente: ${email}`,
     };
 
-    // Envío de correos
-    transporter.sendMail(mailOptions, function (error, info) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log("Correo enviado al cliente: " + info.response);
-      }
-    });
+    const sendEmail = async (options) => {
+      return new Promise((resolve, reject) => {
+        transporter.sendMail(options, (error, info) => {
+          if (error) {
+            return reject(error);
+          }
+          resolve(info);
+        });
+      });
+    };
 
-    // Envío de correo al administrador
-    transporter.sendMail(mailOptionsAdmin, function (error, info) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log("Correo enviado al administrador: " + info.response);
-      }
-    });
+    const infoCliente = await sendEmail(mailOptionsCliente);
+    console.log("Correo enviado al cliente: %s", infoCliente.messageId);
 
-    let info = await transporter.sendMail(mailOptions);
-    console.log("Mensaje enviado: %s", info.messageId);
+    const infoAdmin = await sendEmail(mailOptionsAdmin);
+    console.log("Correo enviado al administrador: %s", infoAdmin.messageId);
+
     res.status(200).json({ message: "Correo enviado" });
   } catch (error) {
     console.error("Error al enviar el correo: %s", error);
