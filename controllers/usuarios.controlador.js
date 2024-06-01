@@ -2,8 +2,8 @@ const userModel = require("../models/userSchema");
 const bcrypt = require("bcryptjs");
 const { validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
-/* const CartModel = require("../models/CartSchema");
-const FavsModel = require("../models/favsSchema"); */
+/* const CartModel = require("../models/CartSchema"); SI QUERES TRABAJAR CON CARRITO DESCOMENTA ESTO Y NO TE OLVIDES DE CREAR EL CARTSCHEMA
+const FavsModel = require("../models/favsSchema"); SI QUERES TRABAJAR CON FAVORITO DESCOMENTA ESTO Y NO TE OLVIDES DE CREAR EL FAVSSCHEMA*/
 const { welcomeUser } = require("../middleware/messages");
 
 const getAllUser = async (req, res) => {
@@ -51,20 +51,19 @@ const createUser = async (req, res) => {
 
     // Crea nuevos documentos para el usuario, carrito y favoritos
     const newUser = new userModel(req.body);
-    /*     const newCart = new CartModel({ idUser: newUser._id });
+    /*     const newCart = new CartModel({ idUser: newUser._id }); 
     const newFavs = new FavsModel({ idUser: newUser._id }); */
 
     // Encripta la contraseña
     const salt = bcrypt.genSaltSync(10);
     newUser.contrasenia = bcrypt.hashSync(req.body.contrasenia, salt);
 
-    // Asigna el ID del carrito y favoritos al usuario
+    // ASIGNA EL ID DEL CARRITO Y FAVORITO AL USUARIO
     /*   newUser.idCart = newCart._id;
     newUser.idFav = newFavs._id; */
 
     // Envía un correo de bienvenida (maneja el caso en que falle)
     const resultMessage = await welcomeUser(req.body.emailUsuario);
-    /* const resultMessage = await welcomeUser(); */
     if (resultMessage !== 200) {
       return res
         .status(500)
@@ -72,8 +71,8 @@ const createUser = async (req, res) => {
     }
 
     // Guarda los documentos en la base de datos
-    /*   await newCart.save();
-    await newFavs.save(); */
+    /*   await newCart.save(); SI QUERES GUARDAR EL CARRITO EN LA BASE DE DATOS DESCOMENTA ESTO
+    await newFavs.save(); SI QUERES GUARDAR FAVORITOS EN LA BASE DE DATOS DESCOMENTA ESTO */
     await newUser.save();
 
     res.status(201).json({ msg: "Usuario Registrado", newUser });
@@ -82,71 +81,6 @@ const createUser = async (req, res) => {
     res.status(400).json({ msg: "Error al crear el usuario" });
   }
 };
-
-/* const loginUser = async (req, res) => {
-  try {
-    const userExist = await userModel.findOne({
-      nombreUsuario: req.body.nombreUsuario,
-    });
-
-    if (!userExist) {
-      return res
-        .status(400)
-        .json({ msg: "Usuario y/o contraseña no coinciden. USER" });
-    } else if (userExist.deleted) {
-      return res
-        .status(403)
-        .json({ msg: "Usuario bloqueado. Debe comunicarse con el admin" });
-    }
-
-    const verifyPass = await bcrypt.compare(
-      req.body.contrasenia,
-      userExist.contrasenia
-    );
-
-    if (!verifyPass) {
-      res
-        .status(400)
-        .json({ msg: "Usuario y/o contraseña no coinciden. PASS" });
-    }
-
-    const payload = {
-      user: {
-        id: userExist._id,
-        role: userExist.role,
-        nombreUsuario: userExist.nombreUsuario, */
-/*       idCart: userExist.idCart,
-        idFav: userExist.idFav, */
-/*   },
-    };
-
-    const token = jwt.sign(payload, process.env.SECRET_KEY_JWT);
-
-    res
-      .status(200)
-      .json({ msg: "Usuario logueado", token, role: userExist.role });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ msg: "Error al crear el usuario", error });
-  }
-};
-
-const deleteLogic = async (req, res) => {
-  try {
-    const userDel = await userModel.findById({ _id: req.params.idUser });
-
-    if (userDel.deleted) {
-      return res.status(400).json({ msg: "El usuario ya fue eliminado" });
-    }
-
-    userDel.deleted = true;
-    await userDel.save();
-
-    res.status(200).json({ msg: "Usuario eliminado logicamente" });
-  } catch (error) {
-    console.log(error);
-  }
-}; */
 
 const loginUser = async (req, res) => {
   try {
