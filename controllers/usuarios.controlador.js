@@ -40,6 +40,15 @@ const createUser = async (req, res) => {
   }
 
   try {
+    // Verifica si el mail ya existe
+    const emailExist = await userModel.findOne({
+      emailUsuario: req.body.emailUsuario,
+    });
+    if (emailExist) {
+      return res
+        .status(400)
+        .json({ msg: "El correo electrónico ya está en uso" });
+    }
     // Verifica si el usuario ya existe
     const userExist = await userModel.findOne({
       nombreUsuario: req.body.nombreUsuario,
