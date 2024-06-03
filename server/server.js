@@ -21,9 +21,10 @@ class Servidor {
   /* creamos un middleware para llamar las rutas */
   routes() {
     this.app.use("/api/productos", require("../routes/products.routes"));
-    this.app.use("/api/users", require("../routes/usuarios.routes")); 
+    this.app.use("/api/users", require("../routes/usuarios.routes"));
     this.app.use("/api/contact", require("../routes/contact.routes"));
     this.app.use("/api/planes", require("../routes/contactplans.routes"));
+    this.app.use("/api/carritos", require("../routes/carrito.routes"));
   }
 
   listen() {
