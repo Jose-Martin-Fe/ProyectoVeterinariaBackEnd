@@ -3,8 +3,8 @@ const ProductModel = require("../models/productsSchema");
 
 const getCarrito = async (req, res) => {
   try {
-    console.log("ID del carrito:", req.user.idCart);
-    const cart = await CarritoModel.findOne({ _id: req.user.idCart });
+    console.log("ID del carrito:", req.idCart);
+    const cart = await CarritoModel.findOne({ _id: req.idCart });
     if (!cart) {
       return res.status(404).json({ msg: "Carrito no encontrado" });
     }
@@ -37,11 +37,22 @@ const agregarProducto = async (req, res) => {
       return res.status(422).json({ msg: "Producto ya cargado en el carrito" });
     }
 
-    cartUser.products.push({
+    // Obtener la cantidad seleccionada desde el frontend
+    const { cantidad } = req.body;
+
+    // Crear un nuevo objeto de producto para agregar al carrito
+    const newProduct = {
       _id: productExist._id,
       titulo: productExist.titulo,
-      // puedes agregar otras propiedades necesarias aquí
-    });
+      precio: productExist.precio,
+      descripcion: productExist.descripcion,
+      image: productExist.image,
+      categoria: productExist.categoria,
+      cantidad: cantidad, // Guardar la cantidad seleccionada
+    };
+
+    // Agregar el producto al carrito
+    cartUser.products.push(newProduct);
     await cartUser.save();
 
     res.status(200).json({ msg: "Producto cargado con éxito", cartUser });
@@ -51,7 +62,64 @@ const agregarProducto = async (req, res) => {
   }
 };
 
+const actualizarCantidad = async (req, res) => {
+  try {
+    const { cantidad } = req.body;
+    const cartUser = await CarritoModel.findById(req.idCart);
+    if (!cartUser) {
+      return res.status(404).json({ msg: "Carrito no encontrado" });
+    }
+
+    const productIndex = cartUser.products.findIndex(
+      (product) => product._id.toString() === req.params.id
+    );
+    if (productIndex === -1) {
+      return res
+        .status(404)
+        .json({ msg: "Producto no encontrado en el carrito" });
+    }
+
+    cartUser.products[productIndex].cantidad = cantidad;
+    await cartUser.save();
+
+    res
+      .status(200)
+      .json({ msg: "Cantidad actualizada exitosamente", cartUser });
+  } catch (error) {
+    console.error("Error al actualizar la cantidad del producto:", error);
+    res.status(500).json({ msg: "Error del servidor", error });
+  }
+};
+
+const eliminarProducto = async (req, res) => {
+  try {
+    const cartUser = await CarritoModel.findById(req.idCart);
+    if (!cartUser) {
+      return res.status(404).json({ msg: "Carrito no encontrado" });
+    }
+
+    const productIndex = cartUser.products.findIndex(
+      (product) => product._id.toString() === req.params.id
+    );
+    if (productIndex === -1) {
+      return res
+        .status(404)
+        .json({ msg: "Producto no encontrado en el carrito" });
+    }
+
+    cartUser.products.splice(productIndex, 1);
+    await cartUser.save();
+
+    res.status(200).json({ msg: "Producto eliminado del carrito", cartUser });
+  } catch (error) {
+    console.error("Error al eliminar el producto del carrito:", error);
+    res.status(500).json({ msg: "Error del servidor", error });
+  }
+};
+
 module.exports = {
   getCarrito,
   agregarProducto,
+  actualizarCantidad,
+  eliminarProducto,
 };
