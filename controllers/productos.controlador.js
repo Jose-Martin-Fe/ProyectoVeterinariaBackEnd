@@ -1,5 +1,6 @@
 const { validationResult } = require("express-validator");
 const ProducModel = require("../models/productsSchema");
+/* const cloudinary = require("../middleware/cloudinary"); */
 
 const getProductos = async (req, res) => {
   try {
@@ -17,6 +18,15 @@ const getProductos = async (req, res) => {
     ]);
 
     res.status(200).json({ products, count });
+  } catch (error) {
+    res.status(500).json({ msg: "Error: Productos no encontrados", error });
+  }
+};
+
+const getProductosAdmin = async (req, res) => {
+  try {
+    const products = await ProducModel.find();
+    res.status(200).json({ products });
   } catch (error) {
     res.status(500).json({ msg: "Error: Productos no encontrados", error });
   }
@@ -43,4 +53,78 @@ const getOneProducto = async (req, res) => {
   }
 };
 
-module.exports = { getProductos, getOneProducto };
+const createProd = async (req, res) => {
+  try {
+    const newProduct = new ProducModel(req.body);
+    if (!newProduct) {
+      return res.json({ msg: "Error: No se creo tu producto" });
+    }
+    await newProduct.save();
+
+    res.status(201).json({ msg: "Producto creado correctamente", newProduct });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ msg: "Error: No se creo el producto", error });
+  }
+};
+
+const updateProd = async (req, res) => {
+  try {
+    const updateProd = {
+      titulo: req.body.titulo,
+      precio: req.body.precio,
+      descripcion: req.body.descripcion,
+      categoria: req.body.categoria,
+    };
+
+    const updateProduct = await ProducModel.findByIdAndUpdate(
+      { _id: req.params.id },
+      updateProd,
+      { new: true }
+    );
+
+    res.status(200).json({ msg: "Producto Actualizado", updateProduct });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ msg: "ERROR: NO se creo tu producto", error });
+  }
+};
+
+/* const addImageProduct = async (req, res) => {
+  try {
+    const product = await ProducModel.findOne({ _id: req.params.idProd });
+    const imagen = await cloudinary.uploader.upload(req.file.path);
+
+    product.image = imagen.secure_url;
+
+    product.save();
+    res.status(200).json({ msg: "Imagen cargada", product });
+  } catch (error) {
+    console.log(error);
+  }
+}; */
+
+const deleteProd = async (req, res) => {
+  try {
+    const productExist = await ProducModel.findOne({ _id: req.params.id });
+
+    if (!productExist) {
+      return res.status(404).json({ msg: "ID incorrecto" });
+    }
+
+    await ProducModel.findByIdAndDelete({ _id: req.params.id });
+    res.status(200).json({ msg: "Producto borrado con exito" });
+  } catch (error) {
+    res.status(500).json({ msg: "Error: No se creo tu producto", error });
+  }
+};
+
+module.exports = {
+  getProductos,
+  getOneProducto,
+  getProductosAdmin,
+  createProd,
+  updateProd,
+  /*   addImageProduct, */
+  deleteProd,
+};
