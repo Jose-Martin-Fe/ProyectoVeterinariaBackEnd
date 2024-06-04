@@ -2,9 +2,9 @@ const userModel = require("../models/userSchema");
 const bcrypt = require("bcryptjs");
 const { validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
-/* const FavsModel = require("../models/favsSchema"); SI QUERES TRABAJAR CON FAVORITO DESCOMENTA ESTO Y NO TE OLVIDES DE CREAR EL FAVSSCHEMA */
 const { welcomeUser } = require("../middleware/messages");
 const CarritoModel = require("../models/carritoSchema");
+const FavoritoModel = require("../models/favoritosSchema");
 
 const getAllUser = async (req, res) => {
   try {
@@ -60,16 +60,16 @@ const createUser = async (req, res) => {
 
     // Crea nuevos documentos para el usuario, carrito y favoritos
     const newUser = new userModel(req.body);
-        const newCart = new CarritoModel({ idUser: newUser._id }); 
-    /* const newFavs = new FavsModel({ idUser: newUser._id }); */
+    const newCart = new CarritoModel({ idUser: newUser._id });
+    const newFavs = new FavoritoModel({ idUser: newUser._id });
 
     // Encripta la contraseña
     const salt = bcrypt.genSaltSync(10);
     newUser.contrasenia = bcrypt.hashSync(req.body.contrasenia, salt);
 
     // ASIGNA EL ID DEL CARRITO Y FAVORITO AL USUARIO
-      newUser.idCart = newCart._id;
-   /*  newUser.idFav = newFavs._id; */
+    newUser.idCart = newCart._id;
+    newUser.idFav = newFavs._id;
 
     // Envía un correo de bienvenida (maneja el caso en que falle)
     const resultMessage = await welcomeUser(req.body.emailUsuario);
@@ -80,8 +80,8 @@ const createUser = async (req, res) => {
     }
 
     // Guarda los documentos en la base de datos
-      await newCart.save(); 
-/*     await newFavs.save(); SI QUERES GUARDAR FAVORITOS EN LA BASE DE DATOS DESCOMENTA ESTO */
+    await newCart.save();
+    await newFavs.save();
     await newUser.save();
 
     res.status(201).json({ msg: "Usuario Registrado", newUser });
