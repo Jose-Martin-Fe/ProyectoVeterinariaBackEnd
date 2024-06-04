@@ -25,6 +25,7 @@ class Servidor {
     this.app.use("/api/contact", require("../routes/contact.routes"));
     this.app.use("/api/planes", require("../routes/contactplans.routes"));
     this.app.use("/api/carritos", require("../routes/carrito.routes"));
+    this.app.use("/api/favoritos", require("../routes/favorito.routes"));
   }
 
   listen() {
