@@ -48,7 +48,6 @@ const agregarProductoFavs = async (req, res) => {
       categoria: productExist.categoria,
     };
 
-    // Agregar el producto al carrito
     favsUser.products.push(newProduct);
     await favsUser.save();
 

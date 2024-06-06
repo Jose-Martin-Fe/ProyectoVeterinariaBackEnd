@@ -37,10 +37,10 @@ const agregarProducto = async (req, res) => {
       return res.status(422).json({ msg: "Producto ya cargado en el carrito" });
     }
 
-    // Obtener la cantidad seleccionada desde el frontend
+   
     const { cantidad } = req.body;
 
-    // Crear un nuevo objeto de producto para agregar al carrito
+
     const newProduct = {
       _id: productExist._id,
       titulo: productExist.titulo,
@@ -48,10 +48,10 @@ const agregarProducto = async (req, res) => {
       descripcion: productExist.descripcion,
       image: productExist.image,
       categoria: productExist.categoria,
-      cantidad: cantidad, // Guardar la cantidad seleccionada
+      cantidad: cantidad, 
     };
 
-    // Agregar el producto al carrito
+
     cartUser.products.push(newProduct);
     await cartUser.save();
 
