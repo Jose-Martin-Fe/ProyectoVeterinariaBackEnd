@@ -36,10 +36,12 @@ const agregarProducto = async (req, res) => {
       return res.status(422).json({ msg: "Producto ya cargado en el carrito" });
     }
 
-    
+
+   
     const { cantidad } = req.body;
 
-    
+
+
     const newProduct = {
       _id: productExist._id,
       titulo: productExist.titulo,
@@ -50,7 +52,7 @@ const agregarProducto = async (req, res) => {
       cantidad: cantidad, 
     };
 
-    
+
     cartUser.products.push(newProduct);
     await cartUser.save();
 
