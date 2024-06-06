@@ -5,7 +5,7 @@ const turnoSchema = new Schema({
   idUser: {
     type: Schema.Types.ObjectId,
     required: true,
-    ref: "User", // Referencia al modelo de usuarios
+    ref: "User", 
   },
   detalleCita: {
     type: String,

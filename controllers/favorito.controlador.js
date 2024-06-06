@@ -3,7 +3,7 @@ const ProductModel = require("../models/productsSchema");
 
 const getFavorito = async (req, res) => {
   try {
-    console.log("ID del favorito:", req.idFav);
+    
     const favorito = await FavoritoModel.findOne({ _id: req.idFav });
     if (!favorito) {
       return res.status(404).json({ msg: "Favorito no encontrado" });
@@ -17,13 +17,12 @@ const getFavorito = async (req, res) => {
 
 const agregarProductoFavs = async (req, res) => {
   try {
-    console.log("ID del producto a agregar:", req.params.id);
+    
     const productExist = await ProductModel.findById(req.params.id);
     if (!productExist) {
       return res.status(404).json({ msg: "Producto no encontrado" });
     }
 
-    console.log("ID del favorito del usuario:", req.idFav);
     const favsUser = await FavoritoModel.findById(req.idFav);
     if (!favsUser) {
       return res.status(404).json({ msg: "Favorito no encontrado" });
