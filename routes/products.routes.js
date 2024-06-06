@@ -23,7 +23,7 @@ router.get(
   getOneProducto
 );
 
-router.post("/", createProd);
+router.post("/", auth("admin"), createProd);
 router.post(
   "/addImage/:idProd",
   multer.single("image"),

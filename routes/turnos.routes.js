@@ -9,7 +9,7 @@ const {
 
 router.get("/", obtenerTurnos);
 router.post("/", crearTurno);
-router.put("/:idTurno", actualizarTurno); // Cambiado a :idTurno
-router.delete("/:idTurno", borrarTurno); // Cambiado a :idTurno
+router.put("/:idTurno", actualizarTurno); 
+router.delete("/:idTurno", borrarTurno); 
 
 module.exports = router;

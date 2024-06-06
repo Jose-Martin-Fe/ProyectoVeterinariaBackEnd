@@ -7,6 +7,7 @@ const cors = require("cors");
 class Servidor {
   constructor() {
     this.app = express();
+
     this.middleware();
     this.routes();
   }
@@ -16,6 +17,7 @@ class Servidor {
     this.app.use(morgan("dev"));
     this.app.use(cors());
   }
+
 
   routes() {
     this.app.use("/api/productos", require("../routes/products.routes"));

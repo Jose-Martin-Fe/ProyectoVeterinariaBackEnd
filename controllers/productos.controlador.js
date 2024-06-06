@@ -102,7 +102,7 @@ const addImageProduct = async (req, res) => {
     product.save();
     res.status(200).json({ msg: "Imagen cargada", product });
   } catch (error) {
-    console.log(error);
+    
   }
 };
 

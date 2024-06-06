@@ -71,10 +71,10 @@ const contacto = async (req, res) => {
     };
 
     const infoCliente = await sendEmail(mailOptionsCliente);
-    console.log("Correo enviado al cliente: %s", infoCliente.messageId);
+  
 
     const infoAdmin = await sendEmail(mailOptionsAdmin);
-    console.log("Correo enviado al administrador: %s", infoAdmin.messageId);
+   
 
     res.status(200).json({ message: "Correo enviado" });
   } catch (error) {
