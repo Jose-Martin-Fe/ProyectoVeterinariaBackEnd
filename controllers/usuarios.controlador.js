@@ -47,6 +47,7 @@ const createUser = async (req, res) => {
     newUser.contrasenia = bcrypt.hashSync(req.body.contrasenia, salt);
 
     newUser.idFav = newFavs._id;
+    newUser.idCart = newCart._id;
 
     const resultMessage = await welcomeUser(req.body.emailUsuario);
     if (resultMessage !== 200) {
