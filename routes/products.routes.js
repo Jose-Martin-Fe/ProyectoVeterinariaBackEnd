@@ -7,12 +7,14 @@ const {
   addImageProduct,
   deleteProd,
   createProd,
+  searchProduct,
 } = require("../controllers/productos.controlador");
 const { check } = require("express-validator");
 const auth = require("../middleware/auth");
 const multer = require("../middleware/multer");
 const router = express.Router();
 
+router.get("search", searchProduct);
 router.get("/", getProductos);
 router.get("/admin", getProductosAdmin);
 router.get(

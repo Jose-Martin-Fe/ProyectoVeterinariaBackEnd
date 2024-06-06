@@ -121,6 +121,21 @@ const deleteProd = async (req, res) => {
   }
 };
 
+const searchProduct = async (req, res) => {
+  try {
+    const products = await ProducModel.find({
+      nombre: { $regex: new RegExp(req.query.termino, "i") },
+    })
+    if (products.length > 1) {
+      res.status(200).json ({msg: "Productos encontrados", products})
+    }else{
+      res.status(200).json ({msg: "Producto encontrado", products})
+    }
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 module.exports = {
   getProductos,
   getOneProducto,
@@ -129,4 +144,5 @@ module.exports = {
   updateProd,
   addImageProduct,
   deleteProd,
+  searchProduct,
 };
