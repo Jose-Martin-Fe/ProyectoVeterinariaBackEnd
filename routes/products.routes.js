@@ -21,7 +21,7 @@ router.get(
   getOneProducto
 );
 
-router.post("/", auth("admin"), createProd);
+router.post("/", createProd);
 /* router.post(
   "/addImage/:idProd",
   multer.single("image"),
@@ -29,7 +29,7 @@ router.post("/", auth("admin"), createProd);
   addImageProduct
 ); */
 
-router.put("/:id", multer.single("image"), updateProd);
+router.put("/:id", multer.single("image"), auth("admin"), updateProd);
 
 router.delete("/:id", auth("admin"), deleteProd);
 

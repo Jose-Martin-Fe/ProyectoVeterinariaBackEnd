@@ -55,16 +55,18 @@ const getOneProducto = async (req, res) => {
 
 const createProd = async (req, res) => {
   try {
-    const newProduct = new ProducModel(req.body);
-    if (!newProduct) {
-      return res.json({ msg: "Error: No se creo tu producto" });
-    }
+    const { titulo, precio, descripcion, categoria } = req.body;
+    const newProduct = new ProducModel({
+      titulo,
+      precio,
+      descripcion,
+      categoria,
+    });
     await newProduct.save();
-
     res.status(201).json({ msg: "Producto creado correctamente", newProduct });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ msg: "Error: No se creo el producto", error });
+    res.status(500).json({ msg: "Error: No se creó el producto", error });
   }
 };
 
