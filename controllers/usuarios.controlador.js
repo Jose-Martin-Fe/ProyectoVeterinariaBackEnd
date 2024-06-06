@@ -5,6 +5,8 @@ const jwt = require("jsonwebtoken");
 const { welcomeUser } = require("../middleware/messages");
 const CarritoModel = require("../models/carritoSchema");
 const FavoritoModel = require("../models/favoritosSchema");
+/* const MisDatosModel = require("../models/misDatosSchema"); */
+const Turno = require("../models/turnosSchema");
 
 const getAllUser = async (req, res) => {
   try {
@@ -22,6 +24,8 @@ const createUser = async (req, res) => {
   }
 
   try {
+    console.log("Iniciando creación de usuario...");
+
     const emailExist = await userModel.findOne({
       emailUsuario: req.body.emailUsuario,
     });
@@ -34,19 +38,25 @@ const createUser = async (req, res) => {
     const userExist = await userModel.findOne({
       nombreUsuario: req.body.nombreUsuario,
     });
-
     if (userExist) {
       return res.status(400).json({ msg: "Usuario no disponible" });
     }
 
+    console.log("Validaciones de correo y usuario pasadas...");
+
     const newUser = new userModel(req.body);
     const newCart = new CarritoModel({ idUser: newUser._id });
     const newFavs = new FavoritoModel({ idUser: newUser._id });
+    const newTurno = new Turno({ idUser: newUser._id });
 
     const salt = bcrypt.genSaltSync(10);
     newUser.contrasenia = bcrypt.hashSync(req.body.contrasenia, salt);
 
+    newUser.idCart = newCart._id;
     newUser.idFav = newFavs._id;
+    newUser.idReservas = newTurno._id;
+
+    console.log("Hashes y referencias de ID asignadas...");
 
     const resultMessage = await welcomeUser(req.body.emailUsuario);
     if (resultMessage !== 200) {
@@ -55,8 +65,11 @@ const createUser = async (req, res) => {
         .json({ msg: "Error al enviar correo de bienvenida" });
     }
 
+    console.log("Correo de bienvenida enviado...");
+
     await newCart.save();
     await newFavs.save();
+    await newTurno.save();
     await newUser.save();
 
     res.status(201).json({ msg: "Usuario Registrado", newUser });
@@ -100,6 +113,7 @@ const loginUser = async (req, res) => {
         nombreUsuario: userExist.nombreUsuario,
         idCart: userExist.idCart,
         idFav: userExist.idFav,
+        idReservas: userExist.idReservas,
       },
     };
 
