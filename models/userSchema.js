@@ -8,12 +8,12 @@ const userSchema = new Schema({
   },
   nombreUsuario: {
     type: String,
-    require: true,
+    required: true,
     unique: true,
   },
   contrasenia: {
     type: String,
-    require: true,
+    required: true,
   },
   role: {
     type: String,
@@ -25,6 +25,7 @@ const userSchema = new Schema({
   },
   idCart: Types.ObjectId,
   idFav: Types.ObjectId,
+  idReservas: Types.ObjectId,
 });
 
 userSchema.methods.toJSON = function () {

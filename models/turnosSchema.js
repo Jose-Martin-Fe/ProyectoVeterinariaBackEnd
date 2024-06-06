@@ -1,13 +1,38 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
+const { Schema } = mongoose;
 
-const turnoSchema = new mongoose.Schema({
-  detalleCita: { type: String, required: true },
-  veterinario: { type: String, required: true },
-  mascota: { type: String, required: true },
-  fecha: { type: Date, required: true },
-  hora: { type: String, required: true }
+const turnoSchema = new Schema({
+  idUser: {
+    type: Schema.Types.ObjectId,
+    required: true,
+    ref: "User", // Referencia al modelo de usuarios
+  },
+  detalleCita: {
+    type: String,
+    required: true,
+    default: "Pendiente",
+  },
+  veterinario: {
+    type: String,
+    required: true,
+    default: "No asignado",
+  },
+  mascota: {
+    type: String,
+    required: true,
+    default: "No especificado",
+  },
+  fecha: {
+    type: Date,
+    required: true,
+    default: Date.now,
+  },
+  hora: {
+    type: String,
+    required: true,
+    default: "00:00",
+  },
 });
 
-const Turno = mongoose.model('Turno', turnoSchema);
-
+const Turno = mongoose.model("Turno", turnoSchema);
 module.exports = Turno;
