@@ -22,12 +22,12 @@ router.get(
 );
 
 router.post("/", createProd);
-/* router.post(
+router.post(
   "/addImage/:idProd",
   multer.single("image"),
   auth("admin"),
   addImageProduct
-); */
+);
 
 router.put("/:id", multer.single("image"), auth("admin"), updateProd);
 

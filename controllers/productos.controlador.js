@@ -1,6 +1,6 @@
 const { validationResult } = require("express-validator");
 const ProducModel = require("../models/productsSchema");
-/* const cloudinary = require("../middleware/cloudinary"); */
+const cloudinary = require("../middleware/cloudinary");
 
 const getProductos = async (req, res) => {
   try {
@@ -92,7 +92,7 @@ const updateProd = async (req, res) => {
   }
 };
 
-/* const addImageProduct = async (req, res) => {
+const addImageProduct = async (req, res) => {
   try {
     const product = await ProducModel.findOne({ _id: req.params.idProd });
     const imagen = await cloudinary.uploader.upload(req.file.path);
@@ -104,7 +104,7 @@ const updateProd = async (req, res) => {
   } catch (error) {
     console.log(error);
   }
-}; */
+};
 
 const deleteProd = async (req, res) => {
   try {
@@ -127,6 +127,6 @@ module.exports = {
   getProductosAdmin,
   createProd,
   updateProd,
-  /*   addImageProduct, */
+  addImageProduct,
   deleteProd,
 };
