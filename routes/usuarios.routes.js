@@ -3,18 +3,15 @@ const {
   createUser,
   loginUser,
   deleteLogic,
-  getAllUserDeletedTrue,
-  getAllUserDeletedFalse,
   getAllUser,
   updateUser,
+  deletePhysically,
 } = require("../controllers/usuarios.controlador");
 const { check } = require("express-validator");
 const auth = require("../middleware/auth");
 const router = express.Router();
 
 router.get("/", getAllUser);
-router.get("/disabledUser", getAllUserDeletedTrue);
-router.get("/enabledUser", getAllUserDeletedFalse);
 
 router.post(
   "/register",
@@ -52,5 +49,6 @@ router.post(
 router.put("/:idUser", auth("admin"), updateUser);
 
 router.delete("/:idUser", auth("admin"), deleteLogic);
+router.delete("/users/:idUser", auth("admin"), deletePhysically);
 
 module.exports = router;
