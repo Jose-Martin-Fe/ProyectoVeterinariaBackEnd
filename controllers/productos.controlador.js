@@ -1,6 +1,6 @@
 const { validationResult } = require("express-validator");
 const ProducModel = require("../models/productsSchema");
-/* const cloudinary = require("../middleware/cloudinary"); */
+const cloudinary = require("../middleware/cloudinary");
 
 const getProductos = async (req, res) => {
   try {
@@ -55,16 +55,18 @@ const getOneProducto = async (req, res) => {
 
 const createProd = async (req, res) => {
   try {
-    const newProduct = new ProducModel(req.body);
-    if (!newProduct) {
-      return res.json({ msg: "Error: No se creo tu producto" });
-    }
+    const { titulo, precio, descripcion, categoria } = req.body;
+    const newProduct = new ProducModel({
+      titulo,
+      precio,
+      descripcion,
+      categoria,
+    });
     await newProduct.save();
-
     res.status(201).json({ msg: "Producto creado correctamente", newProduct });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ msg: "Error: No se creo el producto", error });
+    res.status(500).json({ msg: "Error: No se creó el producto", error });
   }
 };
 
@@ -90,7 +92,7 @@ const updateProd = async (req, res) => {
   }
 };
 
-/* const addImageProduct = async (req, res) => {
+const addImageProduct = async (req, res) => {
   try {
     const product = await ProducModel.findOne({ _id: req.params.idProd });
     const imagen = await cloudinary.uploader.upload(req.file.path);
@@ -100,9 +102,9 @@ const updateProd = async (req, res) => {
     product.save();
     res.status(200).json({ msg: "Imagen cargada", product });
   } catch (error) {
-    console.log(error);
+    
   }
-}; */
+};
 
 const deleteProd = async (req, res) => {
   try {
@@ -119,12 +121,28 @@ const deleteProd = async (req, res) => {
   }
 };
 
+const searchProduct = async (req, res) => {
+  try {
+    const products = await ProducModel.find({
+      nombre: { $regex: new RegExp(req.query.termino, "i") },
+    })
+    if (products.length > 1) {
+      res.status(200).json ({msg: "Productos encontrados", products})
+    }else{
+      res.status(200).json ({msg: "Producto encontrado", products})
+    }
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 module.exports = {
   getProductos,
   getOneProducto,
   getProductosAdmin,
   createProd,
   updateProd,
-  /*   addImageProduct, */
+  addImageProduct,
   deleteProd,
+  searchProduct,
 };

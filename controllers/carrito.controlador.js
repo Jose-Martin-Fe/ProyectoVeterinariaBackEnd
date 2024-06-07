@@ -3,7 +3,6 @@ const ProductModel = require("../models/productsSchema");
 
 const getCarrito = async (req, res) => {
   try {
-    console.log("ID del carrito:", req.idCart);
     const cart = await CarritoModel.findOne({ _id: req.idCart });
     if (!cart) {
       return res.status(404).json({ msg: "Carrito no encontrado" });
@@ -17,7 +16,7 @@ const getCarrito = async (req, res) => {
 
 const agregarProducto = async (req, res) => {
   try {
-    console.log("ID del producto a agregar:", req.params.id);
+  
     const productExist = await ProductModel.findById(req.params.id);
     if (!productExist) {
       return res.status(404).json({ msg: "Producto no encontrado" });
@@ -37,10 +36,12 @@ const agregarProducto = async (req, res) => {
       return res.status(422).json({ msg: "Producto ya cargado en el carrito" });
     }
 
-    // Obtener la cantidad seleccionada desde el frontend
+
+   
     const { cantidad } = req.body;
 
-    // Crear un nuevo objeto de producto para agregar al carrito
+
+
     const newProduct = {
       _id: productExist._id,
       titulo: productExist.titulo,
@@ -48,10 +49,10 @@ const agregarProducto = async (req, res) => {
       descripcion: productExist.descripcion,
       image: productExist.image,
       categoria: productExist.categoria,
-      cantidad: cantidad, // Guardar la cantidad seleccionada
+      cantidad: cantidad, 
     };
 
-    // Agregar el producto al carrito
+
     cartUser.products.push(newProduct);
     await cartUser.save();
 

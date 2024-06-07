@@ -5,29 +5,13 @@ const jwt = require("jsonwebtoken");
 const { welcomeUser } = require("../middleware/messages");
 const CarritoModel = require("../models/carritoSchema");
 const FavoritoModel = require("../models/favoritosSchema");
+/* const MisDatosModel = require("../models/misDatosSchema"); */
+const Turno = require("../models/turnosSchema");
 
 const getAllUser = async (req, res) => {
   try {
     const getUsers = await userModel.find();
     res.status(200).json({ msg: "Usuarios encontrados", getUsers });
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const getAllUserDeletedTrue = async (req, res) => {
-  try {
-    const getUsers = await userModel.find({ deleted: true });
-    res.status(200).json({ msg: "Usuarios encontrados", getUsers });
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const getAllUserDeletedFalse = async (req, res) => {
-  try {
-    const getUsersDelFalse = await userModel.find({ deleted: false });
-    res.status(200).json({ msg: "Usuarios encontrados", getUsersDelFalse });
   } catch (error) {
     console.log(error);
   }
@@ -40,7 +24,8 @@ const createUser = async (req, res) => {
   }
 
   try {
-    // Verifica si el mail ya existe
+    console.log("Iniciando creación de usuario...");
+
     const emailExist = await userModel.findOne({
       emailUsuario: req.body.emailUsuario,
     });
@@ -49,29 +34,30 @@ const createUser = async (req, res) => {
         .status(400)
         .json({ msg: "El correo electrónico ya está en uso" });
     }
-    // Verifica si el usuario ya existe
+
     const userExist = await userModel.findOne({
       nombreUsuario: req.body.nombreUsuario,
     });
-
     if (userExist) {
       return res.status(400).json({ msg: "Usuario no disponible" });
     }
 
-    // Crea nuevos documentos para el usuario, carrito y favoritos
+    console.log("Validaciones de correo y usuario pasadas...");
+
     const newUser = new userModel(req.body);
     const newCart = new CarritoModel({ idUser: newUser._id });
     const newFavs = new FavoritoModel({ idUser: newUser._id });
+    const newTurno = new Turno({ idUser: newUser._id });
 
-    // Encripta la contraseña
     const salt = bcrypt.genSaltSync(10);
     newUser.contrasenia = bcrypt.hashSync(req.body.contrasenia, salt);
 
-    // ASIGNA EL ID DEL CARRITO Y FAVORITO AL USUARIO
     newUser.idCart = newCart._id;
     newUser.idFav = newFavs._id;
+    newUser.idReservas = newTurno._id;
 
-    // Envía un correo de bienvenida (maneja el caso en que falle)
+    console.log("Hashes y referencias de ID asignadas...");
+
     const resultMessage = await welcomeUser(req.body.emailUsuario);
     if (resultMessage !== 200) {
       return res
@@ -79,9 +65,11 @@ const createUser = async (req, res) => {
         .json({ msg: "Error al enviar correo de bienvenida" });
     }
 
-    // Guarda los documentos en la base de datos
+    console.log("Correo de bienvenida enviado...");
+
     await newCart.save();
     await newFavs.save();
+    await newTurno.save();
     await newUser.save();
 
     res.status(201).json({ msg: "Usuario Registrado", newUser });
@@ -125,6 +113,7 @@ const loginUser = async (req, res) => {
         nombreUsuario: userExist.nombreUsuario,
         idCart: userExist.idCart,
         idFav: userExist.idFav,
+        idReservas: userExist.idReservas,
       },
     };
 
@@ -141,18 +130,35 @@ const loginUser = async (req, res) => {
 
 const deleteLogic = async (req, res) => {
   try {
-    const userDel = await userModel.findById({ _id: req.params.idUser });
+    const user = await userModel.findById(req.params.idUser);
 
-    if (userDel.deleted) {
-      return res.status(400).json({ msg: "El usuario ya fue eliminado" });
+    if (!user) {
+      return res.status(404).json({ msg: "Usuario no encontrado" });
     }
 
-    userDel.deleted = true;
-    await userDel.save();
+    user.deleted = !user.deleted;
+    await user.save();
 
-    res.status(200).json({ msg: "Usuario eliminado logicamente" });
+    res.status(200).json({
+      msg: user.deleted ? "Usuario deshabilitado" : "Usuario habilitado",
+      user,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Error al actualizar el estado del usuario" });
+  }
+};
+
+const deletePhysically = async (req, res) => {
+  try {
+    const deletedUser = await userModel.findByIdAndDelete(req.params.idUser);
+    if (!deletedUser) {
+      return res.status(404).json({ msg: "Usuario no encontrado" });
+    }
+    res.status(200).json({ msg: "Usuario eliminado físicamente" });
   } catch (error) {
     console.log(error);
+    res.status(500).json({ msg: "Error al eliminar el usuario" });
   }
 };
 
@@ -172,10 +178,9 @@ const updateUser = async (req, res) => {
 
 module.exports = {
   getAllUser,
-  getAllUserDeletedTrue,
-  getAllUserDeletedFalse,
   createUser,
   loginUser,
   deleteLogic,
+  deletePhysically,
   updateUser,
 };

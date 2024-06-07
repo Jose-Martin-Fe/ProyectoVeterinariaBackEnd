@@ -7,7 +7,7 @@ const cors = require("cors");
 class Servidor {
   constructor() {
     this.app = express();
-    /* debemos ejecutar dentro del constructor */
+
     this.middleware();
     this.routes();
   }
@@ -18,7 +18,7 @@ class Servidor {
     this.app.use(cors());
   }
 
-  /* creamos un middleware para llamar las rutas */
+
   routes() {
     this.app.use("/api/productos", require("../routes/products.routes"));
     this.app.use("/api/users", require("../routes/usuarios.routes"));

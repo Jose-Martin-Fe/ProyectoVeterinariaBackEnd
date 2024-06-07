@@ -1,14 +1,14 @@
 const transporter = require("../middleware/nodemailer");
 
 const welcomeUser = async (emailUsuario) => {
-  /* const welcomeUser = async () => { */
+ 
   try {
     const info = await transporter.sendMail({
       from: `"Veterinaria Patas y Garras" <${process.env.GMAIL_MAIL}>`,
-      to: `${emailUsuario}`, // list of receivers
-      /* to: `${process.env.GMAIL_MAIL}`, */ // list of receivers
-      subject: "Bienvenidos a Patas y Garras ", // Subject line
-      html: "<b>Muchas gracias por confiar en nosotros</b>", // html body
+      to: `${emailUsuario}`,
+  
+      subject: "Bienvenidos a Patas y Garras ", 
+      html: "<b>Muchas gracias por confiar en nosotros</b>", 
     });
     if (info.response.includes("OK")) {
       return 200;
@@ -21,11 +21,11 @@ const welcomeUser = async (emailUsuario) => {
 const recoveryPass = async (emailUsuario) => {
   try {
     const info = await transporter.sendMail({
-      from: `"Recuperacion de contraseña" <${process.env.GMAIL_MAIL}>`, // sender address
-      /*   to: `${emailUsuario}`, */ // list of receivers
-      to: `${emailUsuario}`, // list of receivers
-      subject: "Recupera tu contraseña en pocos pasos", // Subject line
-      html: "<b>Haz click en el sgte enlace</b>", // html body
+      from: `"Recuperacion de contraseña" <${process.env.GMAIL_MAIL}>`, 
+    
+      to: `${emailUsuario}`, 
+      subject: "Recupera tu contraseña en pocos pasos", 
+      html: "<b>Haz click en el sgte enlace</b>", 
     });
     if (info.response.includes("OK")) {
       return 200;
@@ -71,10 +71,10 @@ const contacto = async (req, res) => {
     };
 
     const infoCliente = await sendEmail(mailOptionsCliente);
-    console.log("Correo enviado al cliente: %s", infoCliente.messageId);
+  
 
     const infoAdmin = await sendEmail(mailOptionsAdmin);
-    console.log("Correo enviado al administrador: %s", infoAdmin.messageId);
+   
 
     res.status(200).json({ message: "Correo enviado" });
   } catch (error) {
