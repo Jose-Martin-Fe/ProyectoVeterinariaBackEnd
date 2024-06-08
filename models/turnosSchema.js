@@ -1,4 +1,3 @@
-
 const { Schema, model, Types } = require("mongoose");
 
 const turnoSchema = new Schema({
@@ -37,4 +36,5 @@ const turnoSchema = new Schema({
   ],
 });
 
+const Turno = model("Turnos", turnoSchema);
 module.exports = Turno;
