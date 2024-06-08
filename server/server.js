@@ -1,14 +1,15 @@
+// backend/Servidor.js
 require("dotenv").config();
 require("../DB/config");
 const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
+const eliminarTurnosPasados = require("../middleware/jobs");
 
 class Servidor {
   constructor() {
     this.app = express();
-
-    this.middleware();
+    this.middleware(eliminarTurnosPasados);
     this.routes();
   }
 
@@ -17,7 +18,6 @@ class Servidor {
     this.app.use(morgan("dev"));
     this.app.use(cors());
   }
-
 
   routes() {
     this.app.use("/api/productos", require("../routes/products.routes"));

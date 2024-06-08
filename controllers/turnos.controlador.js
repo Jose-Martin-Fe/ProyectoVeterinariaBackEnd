@@ -1,4 +1,5 @@
 const Turno = require("../models/turnosSchema");
+const eliminarTurnosPasados = require("../middleware/jobs");
 
 const esHoraValida = (hora) => {
   const [horas, minutos] = hora.split(":").map(Number);
@@ -7,6 +8,7 @@ const esHoraValida = (hora) => {
   return true;
 };
 
+// Obtener todos los turnos
 const obtenerTurnos = async (req, res) => {
   try {
     const turnos = await Turno.find({ idUser: req.idUser });
@@ -16,6 +18,7 @@ const obtenerTurnos = async (req, res) => {
   }
 };
 
+// Crear un turno
 const crearTurno = async (req, res) => {
   const { detalleCita, veterinario, mascota, fecha, hora } = req.body;
   const idUser = req.idUser; // Obtener el ID del usuario del middleware
@@ -68,11 +71,12 @@ const crearTurno = async (req, res) => {
 
     res.status(201).json(turnoExistente);
   } catch (err) {
-    console.error("Error al crear el turno:", error);
+    console.error("Error al crear el turno:", err);
     res.status(500).json({ msg: "Error al crear el turno" });
   }
 };
 
+// Actualizar un turno
 const actualizarTurno = async (req, res) => {
   const id = req.params.id;
   const { detalleCita, veterinario, mascota, fecha, hora } = req.body;
@@ -107,6 +111,7 @@ const actualizarTurno = async (req, res) => {
   }
 };
 
+// Eliminar un turno
 const borrarTurno = async (req, res) => {
   const id = req.params.id;
 
