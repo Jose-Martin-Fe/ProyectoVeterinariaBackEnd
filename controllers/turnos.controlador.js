@@ -11,7 +11,7 @@ const esHoraValida = (hora) => {
 // Obtener todos los turnos
 const obtenerTurnos = async (req, res) => {
   try {
-    const turnos = await Turno.find({ idUser: req.idUser });
+    const turnos = await Turno.find();
     res.json(turnos);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -39,27 +39,26 @@ const crearTurno = async (req, res) => {
   }
 
   try {
-    const turnoExistente = await Turno.findOne({ idUser });
+    // Verificar si ya existe una reserva en la misma fecha y hora con el mismo veterinario
+    const turnoExistente = await Turno.findOne({
+      "reservas.fecha": fecha,
+      "reservas.hora": hora,
+      "reservas.veterinario": veterinario,
+    });
 
-    if (!turnoExistente) {
-      const nuevoTurno = new Turno({
-        idUser,
-        reservas: [
-          {
-            detalleCita,
-            veterinario,
-            mascota,
-            fecha,
-            hora,
-          },
-        ],
+    if (turnoExistente) {
+      return res.status(400).json({
+        message: "Ya existe un turno reservado para esta fecha y hora.",
       });
-
-      const nuevoTurnoGuardado = await nuevoTurno.save();
-      return res.status(201).json(nuevoTurnoGuardado);
     }
 
-    turnoExistente.reservas.push({
+    // Buscar o crear el turno del usuario
+    let turnoUsuario = await Turno.findOne({ idUser });
+    if (!turnoUsuario) {
+      turnoUsuario = new Turno({ idUser, reservas: [] });
+    }
+
+    turnoUsuario.reservas.push({
       detalleCita,
       veterinario,
       mascota,
@@ -67,9 +66,9 @@ const crearTurno = async (req, res) => {
       hora,
     });
 
-    await turnoExistente.save();
+    await turnoUsuario.save();
 
-    res.status(201).json(turnoExistente);
+    res.status(201).json(turnoUsuario);
   } catch (err) {
     console.error("Error al crear el turno:", err);
     res.status(500).json({ msg: "Error al crear el turno" });
@@ -89,6 +88,20 @@ const actualizarTurno = async (req, res) => {
   }
 
   try {
+    // Verificar si ya existe una reserva en la misma fecha y hora con el mismo veterinario
+    const turnoExistente = await Turno.findOne({
+      "reservas.fecha": fecha,
+      "reservas.hora": hora,
+      "reservas.veterinario": veterinario,
+      _id: { $ne: id }, // Excluir el turno que se está actualizando
+    });
+
+    if (turnoExistente) {
+      return res.status(400).json({
+        message: "Ya existe un turno reservado para esta fecha y hora.",
+      });
+    }
+
     const turnoActualizado = await Turno.findByIdAndUpdate(
       id,
       {
