@@ -9,8 +9,9 @@ const eliminarTurnosPasados = require("../middleware/jobs");
 class Servidor {
   constructor() {
     this.app = express();
-    this.middleware(eliminarTurnosPasados);
+    this.middleware();
     this.routes();
+    this.iniciarCronJobs();
   }
 
   middleware() {
@@ -27,6 +28,10 @@ class Servidor {
     this.app.use("/api/carritos", require("../routes/carrito.routes"));
     this.app.use("/api/favoritos", require("../routes/favorito.routes"));
     this.app.use("/api/turnos", require("../routes/turnos.routes"));
+  }
+
+  iniciarCronJobs() {
+    eliminarTurnosPasados;
   }
 
   listen() {
