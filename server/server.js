@@ -1,4 +1,3 @@
-// backend/Servidor.js
 require("dotenv").config();
 require("../DB/config");
 const express = require("express");
@@ -9,8 +8,9 @@ const eliminarTurnosPasados = require("../middleware/jobs");
 class Servidor {
   constructor() {
     this.app = express();
-    this.middleware(eliminarTurnosPasados);
+    this.middleware();
     this.routes();
+    this.initCronJobs();
   }
 
   middleware() {
@@ -28,6 +28,11 @@ class Servidor {
     this.app.use("/api/favoritos", require("../routes/favorito.routes"));
     this.app.use("/api/turnos", require("../routes/turnos.routes"));
     this.app.use("/api/profesionales", require("../routes/profesional.routes"));
+  }
+
+  initCronJobs() {
+    // Iniciar el job para eliminar turnos pasados
+    eliminarTurnosPasados.start();
   }
 
   listen() {

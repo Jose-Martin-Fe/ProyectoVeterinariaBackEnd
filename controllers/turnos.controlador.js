@@ -1,29 +1,29 @@
 const Turno = require("../models/turnosSchema");
-const eliminarTurnosPasados = require("../middleware/jobs");
+const ProfesionalModel = require("../models/profesionalSchema");
+const moment = require("moment-timezone");
 
 const esHoraValida = (hora) => {
   const [horas, minutos] = hora.split(":").map(Number);
   if (horas < 9 || horas >= 17) return false;
-  if (minutos % 20 !== 0) return false;
+  if (minutos % 30 !== 0) return false;
   return true;
 };
 
-// Obtener todos los turnos
 const obtenerTurnos = async (req, res) => {
   try {
-    const turnos = await Turno.find();
+    const turnos = await Turno.find({ idUser: req.idUser });
     res.json(turnos);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
-// Crear un turno
 const crearTurno = async (req, res) => {
   const { detalleCita, veterinario, mascota, fecha, hora } = req.body;
-  const idUser = req.idUser; // Obtener el ID del usuario del middleware
+  const idUser = req.idUser;
 
-  const diaSemana = new Date(fecha).getDay();
+  const fechaArgentina = moment.tz(`${fecha} ${hora}`, 'YYYY-MM-DD HH:mm', 'America/Argentina/Buenos_Aires');
+  const diaSemana = fechaArgentina.day();
 
   if (diaSemana < 1 || diaSemana > 5) {
     return res
@@ -34,12 +34,11 @@ const crearTurno = async (req, res) => {
   if (!esHoraValida(hora)) {
     return res.status(400).json({
       message:
-        "Los turnos solo pueden ser cada 20 minutos entre las 9:00 y las 17:00.",
+        "Los turnos solo pueden ser cada 30 minutos entre las 9:00 y las 17:00.",
     });
   }
 
   try {
-    // Verificar si ya existe una reserva en la misma fecha y hora con el mismo veterinario
     const turnoExistente = await Turno.findOne({
       "reservas.fecha": fecha,
       "reservas.hora": hora,
@@ -52,7 +51,25 @@ const crearTurno = async (req, res) => {
       });
     }
 
-    // Buscar o crear el turno del usuario
+    const veterinarioExistente = await ProfesionalModel.findOne({
+      nombre: veterinario,
+    });
+
+    if (!veterinarioExistente) {
+      return res.status(400).json({
+        message: "El veterinario especificado no existe.",
+      });
+    }
+
+    const turnoInicio = fechaArgentina.clone().subtract(15, 'minutes');
+
+    if (moment().tz('America/Argentina/Buenos_Aires').isAfter(turnoInicio)) {
+      return res.status(400).json({
+        message:
+          "El turno seleccionado no está disponible. Por favor, elija otro.",
+      });
+    }
+
     let turnoUsuario = await Turno.findOne({ idUser });
     if (!turnoUsuario) {
       turnoUsuario = new Turno({ idUser, reservas: [] });
@@ -71,71 +88,44 @@ const crearTurno = async (req, res) => {
     res.status(201).json(turnoUsuario);
   } catch (err) {
     console.error("Error al crear el turno:", err);
-    res.status(500).json({ msg: "Error al crear el turno" });
+    res.status(500).json({ message: "Error al crear el turno" });
   }
 };
 
-// Actualizar un turno
-const actualizarTurno = async (req, res) => {
-  const id = req.params.id;
-  const { detalleCita, veterinario, mascota, fecha, hora } = req.body;
-
-  if (!esHoraValida(hora)) {
-    return res.status(400).json({
-      message:
-        "Los turnos solo pueden ser cada 20 minutos entre las 9:00 y las 17:00.",
-    });
-  }
+const obtenerHorariosDisponibles = async (req, res) => {
+  const { fecha, veterinario } = req.body;
 
   try {
-    // Verificar si ya existe una reserva en la misma fecha y hora con el mismo veterinario
-    const turnoExistente = await Turno.findOne({
+    const turnos = await Turno.find({
       "reservas.fecha": fecha,
-      "reservas.hora": hora,
       "reservas.veterinario": veterinario,
-      _id: { $ne: id }, // Excluir el turno que se está actualizando
     });
 
-    if (turnoExistente) {
-      return res.status(400).json({
-        message: "Ya existe un turno reservado para esta fecha y hora.",
+    const horariosOcupados = turnos.flatMap((turno) =>
+      turno.reservas.map((reserva) => reserva.hora)
+    );
+
+    const horariosDisponibles = [];
+    const now = moment().tz('America/Argentina/Buenos_Aires');
+    const today = now.format('YYYY-MM-DD');
+
+    for (let h = 9; h < 17; h++) {
+      ["00", "30"].forEach((m) => {
+        const hora = `${String(h).padStart(2, "0")}:${m}`;
+        const fechaHora = moment.tz(`${fecha} ${hora}`, 'YYYY-MM-DD HH:mm', 'America/Argentina/Buenos_Aires');
+
+        if (fecha === today && fechaHora.isBefore(now)) {
+          // Saltar horarios pasados para la fecha de hoy
+          return;
+        }
+
+        if (!horariosOcupados.includes(hora)) {
+          horariosDisponibles.push(hora);
+        }
       });
     }
 
-    const turnoActualizado = await Turno.findByIdAndUpdate(
-      id,
-      {
-        detalleCita,
-        veterinario,
-        mascota,
-        fecha,
-        hora,
-      },
-      { new: true }
-    );
-
-    if (!turnoActualizado) {
-      return res.status(404).json({ message: "Turno no encontrado" });
-    }
-
-    res.json(turnoActualizado);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-};
-
-// Eliminar un turno
-const borrarTurno = async (req, res) => {
-  const id = req.params.id;
-
-  try {
-    const turnoEliminado = await Turno.findByIdAndDelete(id);
-
-    if (!turnoEliminado) {
-      return res.status(404).json({ message: "Turno no encontrado" });
-    }
-
-    res.json({ message: "Turno eliminado correctamente" });
+    res.json(horariosDisponibles);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -144,6 +134,5 @@ const borrarTurno = async (req, res) => {
 module.exports = {
   obtenerTurnos,
   crearTurno,
-  actualizarTurno,
-  borrarTurno,
+  obtenerHorariosDisponibles,
 };
