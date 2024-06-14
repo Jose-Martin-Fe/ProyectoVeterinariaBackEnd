@@ -22,7 +22,11 @@ const crearTurno = async (req, res) => {
   const { detalleCita, veterinario, mascota, fecha, hora } = req.body;
   const idUser = req.idUser;
 
-  const fechaArgentina = moment.tz(`${fecha} ${hora}`, 'YYYY-MM-DD HH:mm', 'America/Argentina/Buenos_Aires');
+  const fechaArgentina = moment.tz(
+    `${fecha} ${hora}`,
+    "YYYY-MM-DD HH:mm",
+    "America/Argentina/Buenos_Aires"
+  );
   const diaSemana = fechaArgentina.day();
 
   if (diaSemana < 1 || diaSemana > 5) {
@@ -61,9 +65,9 @@ const crearTurno = async (req, res) => {
       });
     }
 
-    const turnoInicio = fechaArgentina.clone().subtract(15, 'minutes');
+    const turnoInicio = fechaArgentina.clone().subtract(15, "minutes");
 
-    if (moment().tz('America/Argentina/Buenos_Aires').isAfter(turnoInicio)) {
+    if (moment().tz("America/Argentina/Buenos_Aires").isAfter(turnoInicio)) {
       return res.status(400).json({
         message:
           "El turno seleccionado no está disponible. Por favor, elija otro.",
@@ -106,13 +110,17 @@ const obtenerHorariosDisponibles = async (req, res) => {
     );
 
     const horariosDisponibles = [];
-    const now = moment().tz('America/Argentina/Buenos_Aires');
-    const today = now.format('YYYY-MM-DD');
+    const now = moment().tz("America/Argentina/Buenos_Aires");
+    const today = now.format("YYYY-MM-DD");
 
     for (let h = 9; h < 17; h++) {
       ["00", "30"].forEach((m) => {
         const hora = `${String(h).padStart(2, "0")}:${m}`;
-        const fechaHora = moment.tz(`${fecha} ${hora}`, 'YYYY-MM-DD HH:mm', 'America/Argentina/Buenos_Aires');
+        const fechaHora = moment.tz(
+          `${fecha} ${hora}`,
+          "YYYY-MM-DD HH:mm",
+          "America/Argentina/Buenos_Aires"
+        );
 
         if (fecha === today && fechaHora.isBefore(now)) {
           // Saltar horarios pasados para la fecha de hoy
@@ -131,8 +139,35 @@ const obtenerHorariosDisponibles = async (req, res) => {
   }
 };
 
+const eliminarReserva = async (req, res) => {
+  try {
+    const turnoUsuario = await Turno.findOne({ "reservas._id": req.params.id });
+    if (!turnoUsuario) {
+      return res.status(404).json({ msg: "Reserva no encontrada" });
+    }
+
+    const reservaIndex = turnoUsuario.reservas.findIndex(
+      (reserva) => reserva._id.toString() === req.params.id
+    );
+    if (reservaIndex === -1) {
+      return res.status(404).json({ msg: "Reserva no encontrada" });
+    }
+
+    turnoUsuario.reservas.splice(reservaIndex, 1);
+    await turnoUsuario.save();
+
+    res
+      .status(200)
+      .json({ msg: "Reserva eliminada correctamente", turnoUsuario });
+  } catch (error) {
+    console.error("Error al eliminar la reserva:", error);
+    res.status(500).json({ msg: "Error del servidor", error });
+  }
+};
+
 module.exports = {
   obtenerTurnos,
   crearTurno,
   obtenerHorariosDisponibles,
+  eliminarReserva,
 };
