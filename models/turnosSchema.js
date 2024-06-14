@@ -3,7 +3,6 @@ const { Schema, model, Types } = require("mongoose");
 const turnoSchema = new Schema({
   idUser: {
     type: Types.ObjectId,
-    required: true,
   },
   reservas: [
     {
@@ -23,9 +22,8 @@ const turnoSchema = new Schema({
         default: "No especificado",
       },
       fecha: {
-        type: Date,
+        type: Date, // Cambiado a tipo Date para almacenar la fecha correctamente
         required: true,
-        default: Date.now,
       },
       hora: {
         type: String,
