@@ -9,7 +9,6 @@ const productSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-
   descripcion: {
     type: String,
     required: true,
@@ -17,7 +16,6 @@ const productSchema = new mongoose.Schema({
   image: {
     type: String,
   },
-
   categoria: {
     type: String,
     required: true,
