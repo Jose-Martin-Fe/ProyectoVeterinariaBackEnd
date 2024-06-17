@@ -2,7 +2,7 @@ const { validationResult } = require("express-validator");
 const ProducModel = require("../models/productsSchema");
 const cloudinary = require("../middleware/cloudinary");
 
-const getProductos = async (req, res) => {
+/* const getProductos = async (req, res) => {
   try {
     const page = req.query.page || 1;
     const limit = req.query.limit || 10;
@@ -19,6 +19,39 @@ const getProductos = async (req, res) => {
 
     res.status(200).json({ products, count });
   } catch (error) {
+    res.status(500).json({ msg: "Error: Productos no encontrados", error });
+  }
+};
+ */
+
+const getProductos = async (req, res) => {
+  try {
+    const page = req.query.page || 1;
+    const limit = req.query.limit || 10;
+    const categoria = req.query.categoria;
+    const termino = req.query.termino;
+
+    let query = {};
+
+    if (categoria && categoria !== "Todas las categorias") {
+      query.categoria = categoria;
+    }
+
+    if (termino) {
+      const regex = new RegExp(termino, "i");
+      query.titulo = regex;
+    }
+
+    const skip = (page - 1) * limit;
+
+    const [products, count] = await Promise.all([
+      ProducModel.find(query).skip(skip).limit(Number(limit)),
+      ProducModel.countDocuments(query),
+    ]);
+
+    res.status(200).json({ products, count });
+  } catch (error) {
+    console.error("Error al obtener productos:", error);
     res.status(500).json({ msg: "Error: Productos no encontrados", error });
   }
 };
@@ -101,9 +134,7 @@ const addImageProduct = async (req, res) => {
 
     product.save();
     res.status(200).json({ msg: "Imagen cargada", product });
-  } catch (error) {
-    
-  }
+  } catch (error) {}
 };
 
 const deleteProd = async (req, res) => {
@@ -123,18 +154,28 @@ const deleteProd = async (req, res) => {
 
 const searchProduct = async (req, res) => {
   try {
-    const products = await ProducModel.find({
-      nombre: { $regex: new RegExp(req.query.termino, "i") },
-    })
-    if (products.length > 1) {
-      res.status(200).json ({msg: "Productos encontrados", products})
-    }else{
-      res.status(200).json ({msg: "Producto encontrado", products})
+    const { termino } = req.query;
+    if (!termino) {
+      return res
+        .status(400)
+        .json({ msg: "El término de búsqueda es requerido" });
     }
+    const regex = new RegExp(termino, "i");
+    const products = await ProducModel.find({ titulo: regex });
+
+    res
+      .status(200)
+      .json({
+        products,
+        msg: products.length
+          ? "Productos encontrados"
+          : "No se encontraron productos que coincidan con el término de búsqueda",
+      });
   } catch (error) {
-    console.log(error)
+    console.error("Error al buscar productos", error);
+    res.status(500).json({ msg: "Error al buscar productos", error });
   }
-}
+};
 
 module.exports = {
   getProductos,
