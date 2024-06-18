@@ -28,6 +28,8 @@ class Servidor {
     this.app.use("/api/favoritos", require("../routes/favorito.routes"));
     this.app.use("/api/turnos", require("../routes/turnos.routes"));
     this.app.use("/api/profesionales", require("../routes/profesional.routes"));
+    this.app.use("/api/misDatos", require("../routes/misDatos.routes"));
+
   }
 
   initCronJobs() {

@@ -5,8 +5,8 @@ const jwt = require("jsonwebtoken");
 const { welcomeUser } = require("../middleware/messages");
 const CarritoModel = require("../models/carritoSchema");
 const FavoritoModel = require("../models/favoritosSchema");
-/* const MisDatosModel = require("../models/misDatosSchema"); */
 const Turno = require("../models/turnosSchema");
+const MisDatosModel = require("../models/miDatoSchema");
 
 const getAllUser = async (req, res) => {
   try {
@@ -48,6 +48,7 @@ const createUser = async (req, res) => {
     const newCart = new CarritoModel({ idUser: newUser._id });
     const newFavs = new FavoritoModel({ idUser: newUser._id });
     const newTurno = new Turno({ idUser: newUser._id });
+    const newMisDatos = new MisDatosModel({ idUser: newUser._id });
 
     const salt = bcrypt.genSaltSync(10);
     newUser.contrasenia = bcrypt.hashSync(req.body.contrasenia, salt);
@@ -55,6 +56,7 @@ const createUser = async (req, res) => {
     newUser.idCart = newCart._id;
     newUser.idFav = newFavs._id;
     newUser.idReservas = newTurno._id;
+    newUser.idMisDatos = newMisDatos._id;
 
     console.log("Hashes y referencias de ID asignadas...");
 
@@ -71,6 +73,7 @@ const createUser = async (req, res) => {
     await newFavs.save();
     await newTurno.save();
     await newUser.save();
+    await newMisDatos.save();
 
     res.status(201).json({ msg: "Usuario Registrado", newUser });
   } catch (error) {
@@ -114,6 +117,7 @@ const loginUser = async (req, res) => {
         idCart: userExist.idCart,
         idFav: userExist.idFav,
         idReservas: userExist.idReservas,
+        idMisDatos: userExist.idMisDatos,
       },
     };
 
@@ -121,7 +125,7 @@ const loginUser = async (req, res) => {
 
     return res
       .status(200)
-      .json({ msg: "Usuario logueado", token, role: userExist.role });
+      .json({ msg: "Usuario logueado", token, role: userExist.role, id: userExist._id });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ msg: "Error al crear el usuario", error });
