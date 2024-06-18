@@ -26,6 +26,7 @@ const userSchema = new Schema({
   idCart: Types.ObjectId,
   idFav: Types.ObjectId,
   idReservas: Types.ObjectId,
+  idMisDatos: Types.ObjectId,
 });
 
 userSchema.methods.toJSON = function () {
