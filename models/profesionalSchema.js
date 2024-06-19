@@ -33,6 +33,9 @@ const profesionalSchema = new Schema({
     type: String,
     required: true,
   },
+  comentarios: {
+    type: String,
+  },
   horario: [horarioSchema],
 });
 
