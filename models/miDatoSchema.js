@@ -1,35 +1,26 @@
 const { Schema, model, Types } = require("mongoose");
 
-const misDatosMascota = new Schema({
-  nombreMascota: {
-    type: String,
-  },
-  especie: {
-    type: String,
-  },
-  raza: {
-    type: String,
-  },
-});
-
 const misDatosSchema = new Schema({
   idUser: {
     type: Types.ObjectId,
+    required: true,
   },
   nombre: {
     type: String,
+    required: true,
   },
   apellido: {
     type: String,
+    required: true,
   },
   mail: {
     type: String,
+    required: true,
   },
   telefono: {
     type: String,
+    required: true,
   },
-
-  mascota: [misDatosMascota],
 });
 
 const MisDatosModel = model("MisDatos", misDatosSchema);
