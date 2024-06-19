@@ -1,6 +1,6 @@
 const MisDatosModel = require("../models/miDatoSchema");
+const MascotaModel = require("../models/miMascotaSchema");
 
-// Obtener datos personales y de mascotas
 const obtenerDatosPersonales = async (req, res) => {
   const { idUser } = req.params;
   try {
@@ -10,7 +10,9 @@ const obtenerDatosPersonales = async (req, res) => {
         .status(404)
         .json({ message: "Datos personales no encontrados" });
     }
-    res.status(200).json(datosPersonales);
+
+    const mascotas = await MascotaModel.find({ ownerId: datosPersonales._id });
+    res.status(200).json({ ...datosPersonales.toObject(), mascotas });
   } catch (error) {
     res
       .status(500)
@@ -18,7 +20,6 @@ const obtenerDatosPersonales = async (req, res) => {
   }
 };
 
-// Agregar o modificar datos personales
 const agregarOModificarDatosPersonales = async (req, res) => {
   const { idUser, nombre, apellido, mail, telefono } = req.body.misDatos;
   try {
@@ -46,8 +47,7 @@ const agregarOModificarDatosPersonales = async (req, res) => {
   }
 };
 
-// Agregar mascota
-const agregarMascota = async (req, res) => {
+const agregarOModificarMascota = async (req, res) => {
   const { idUser, mascota } = req.body;
   try {
     const datosPersonales = await MisDatosModel.findOne({ idUser });
@@ -56,16 +56,46 @@ const agregarMascota = async (req, res) => {
         .status(404)
         .json({ message: "Datos personales no encontrados" });
     }
-    datosPersonales.mascota.push(mascota);
-    await datosPersonales.save();
-    res.status(201).json(datosPersonales);
+
+    if (mascota._id) {
+      let mascotaExistente = await MascotaModel.findById(mascota._id);
+      if (mascotaExistente) {
+        Object.assign(mascotaExistente, mascota);
+        await mascotaExistente.save();
+        return res.status(200).json(mascotaExistente);
+      }
+    }
+
+    const nuevaMascota = new MascotaModel({
+      ...mascota,
+      ownerId: datosPersonales._id,
+    });
+    await nuevaMascota.save();
+    return res.status(201).json(nuevaMascota);
   } catch (error) {
-    res.status(500).json({ message: "Error al agregar la mascota", error });
+    res
+      .status(500)
+      .json({ message: "Error al agregar o modificar la mascota", error });
   }
 };
 
+const eliminarMascota = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const mascota = await MascotaModel.findById(id);
+    if (!mascota) {
+      return res.status(404).json({ message: "Mascota no encontrada" });
+    }
+
+    await MascotaModel.findByIdAndDelete(id);
+    res.status(200).json({ message: "Mascota eliminada correctamente" });
+  } catch (error) {
+    res.status(500).json({ message: "Error al eliminar la mascota", error });
+  }
+};
 module.exports = {
   obtenerDatosPersonales,
   agregarOModificarDatosPersonales,
-  agregarMascota,
+  agregarOModificarMascota,
+  eliminarMascota,
 };
