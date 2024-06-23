@@ -1,6 +1,7 @@
 const Turno = require("../models/turnosSchema");
 const ProfesionalModel = require("../models/profesionalSchema");
 const moment = require("moment-timezone");
+const MisDatosModel = require("../models/miDatoSchema");
 
 const esHoraValida = (hora) => {
   const [horas, minutos] = hora.split(":").map(Number);
@@ -165,9 +166,59 @@ const eliminarReserva = async (req, res) => {
   }
 };
 
+const adminObtenerTurnos = async (req, res) => {
+  try {
+    const turnos = await Turno.find({});
+
+    const turnosConDatosPersonales = await Promise.all(
+      turnos.map(async (turno) => {
+        const datosPersonales = await MisDatosModel.findOne({
+          idUser: turno.idUser._id,
+        });
+        return {
+          ...turno.toObject(),
+          datosPersonales: datosPersonales ? datosPersonales.toObject() : null,
+        };
+      })
+    );
+
+    res.json(turnosConDatosPersonales);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+const adminEliminarReserva = async (req, res) => {
+  try {
+    const turnoUsuario = await Turno.findOne({ "reservas._id": req.params.id });
+    if (!turnoUsuario) {
+      return res.status(404).json({ msg: "Reserva no encontrada" });
+    }
+
+    const reservaIndex = turnoUsuario.reservas.findIndex(
+      (reserva) => reserva._id.toString() === req.params.id
+    );
+    if (reservaIndex === -1) {
+      return res.status(404).json({ msg: "Reserva no encontrada" });
+    }
+
+    turnoUsuario.reservas.splice(reservaIndex, 1);
+    await turnoUsuario.save();
+
+    res
+      .status(200)
+      .json({ msg: "Reserva eliminada correctamente", turnoUsuario });
+  } catch (error) {
+    console.error("Error al eliminar la reserva:", error);
+    res.status(500).json({ msg: "Error del servidor", error });
+  }
+};
+
 module.exports = {
   obtenerTurnos,
   crearTurno,
   obtenerHorariosDisponibles,
   eliminarReserva,
+  adminObtenerTurnos,
+  adminEliminarReserva,
 };
