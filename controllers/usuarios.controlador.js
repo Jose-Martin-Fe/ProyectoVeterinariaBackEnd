@@ -123,9 +123,12 @@ const loginUser = async (req, res) => {
 
     const token = jwt.sign(payload, process.env.SECRET_KEY_JWT);
 
-    return res
-      .status(200)
-      .json({ msg: "Usuario logueado", token, role: userExist.role, id: userExist._id });
+    return res.status(200).json({
+      msg: "Usuario logueado",
+      token,
+      role: userExist.role,
+      id: userExist._id,
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ msg: "Error al crear el usuario", error });
@@ -168,15 +171,33 @@ const deletePhysically = async (req, res) => {
 
 const updateUser = async (req, res) => {
   try {
-    const update = await userModel.findByIdAndUpdate(
-      { _id: req.params.idUser },
-      req.body,
+    const { idUser } = req.params;
+    const { nombreUsuario, emailUsuario, role } = req.body;
+
+    const existingUsername = await userModel.findOne({ nombreUsuario });
+    if (existingUsername && existingUsername._id.toString() !== idUser) {
+      return res
+        .status(400)
+        .json({ msg: "El nombre de usuario ya está en uso por otro usuario" });
+    }
+
+    const existingEmail = await userModel.findOne({ emailUsuario });
+    if (existingEmail && existingEmail._id.toString() !== idUser) {
+      return res
+        .status(400)
+        .json({ msg: "El correo electrónico ya está en uso por otro usuario" });
+    }
+
+    const updatedUser = await userModel.findByIdAndUpdate(
+      idUser,
+      { nombreUsuario, emailUsuario, role },
       { new: true }
     );
 
-    res.status(200).json({ msg: "Usuario actualizado", update });
+    res.status(200).json({ msg: "Usuario actualizado", updatedUser });
   } catch (error) {
-    console.log(error);
+    console.error("Error al actualizar el usuario:", error);
+    res.status(400).json({ msg: "Error al actualizar el usuario" });
   }
 };
 

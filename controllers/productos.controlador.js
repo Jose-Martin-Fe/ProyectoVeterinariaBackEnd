@@ -2,28 +2,6 @@ const { validationResult } = require("express-validator");
 const ProducModel = require("../models/productsSchema");
 const cloudinary = require("../middleware/cloudinary");
 
-/* const getProductos = async (req, res) => {
-  try {
-    const page = req.query.page || 1;
-    const limit = req.query.limit || 10;
-    const categoria = req.query.categoria;
-
-    const query = categoria ? { categoria } : {};
-
-    const skip = (page - 1) * limit;
-
-    const [products, count] = await Promise.all([
-      ProducModel.find(query).skip(skip).limit(limit),
-      ProducModel.countDocuments(query),
-    ]);
-
-    res.status(200).json({ products, count });
-  } catch (error) {
-    res.status(500).json({ msg: "Error: Productos no encontrados", error });
-  }
-};
- */
-
 const getProductos = async (req, res) => {
   try {
     const page = req.query.page || 1;
@@ -134,7 +112,9 @@ const addImageProduct = async (req, res) => {
 
     product.save();
     res.status(200).json({ msg: "Imagen cargada", product });
-  } catch (error) {}
+  } catch (error) {
+    res.status(500).json({ msg: "Error: No se cargo la imagen", error });
+  }
 };
 
 const deleteProd = async (req, res) => {
@@ -163,14 +143,12 @@ const searchProduct = async (req, res) => {
     const regex = new RegExp(termino, "i");
     const products = await ProducModel.find({ titulo: regex });
 
-    res
-      .status(200)
-      .json({
-        products,
-        msg: products.length
-          ? "Productos encontrados"
-          : "No se encontraron productos que coincidan con el término de búsqueda",
-      });
+    res.status(200).json({
+      products,
+      msg: products.length
+        ? "Productos encontrados"
+        : "No se encontraron productos que coincidan con el término de búsqueda",
+    });
   } catch (error) {
     console.error("Error al buscar productos", error);
     res.status(500).json({ msg: "Error al buscar productos", error });
