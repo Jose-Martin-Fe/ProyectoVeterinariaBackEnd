@@ -7,7 +7,7 @@ const {
   addImageProduct,
   deleteProd,
   createProd,
-  searchProduct
+  searchProduct,
 } = require("../controllers/productos.controlador");
 const { check } = require("express-validator");
 const auth = require("../middleware/auth");
@@ -31,7 +31,7 @@ router.post(
   addImageProduct
 );
 
-router.put("/:id", multer.single("image"), auth("admin"), updateProd);
+router.put("/:id", auth("admin"), updateProd);
 
 router.delete("/:id", auth("admin"), deleteProd);
 
