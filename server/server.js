@@ -29,7 +29,7 @@ class Servidor {
     this.app.use("/api/turnos", require("../routes/turnos.routes"));
     this.app.use("/api/profesionales", require("../routes/profesional.routes"));
     this.app.use("/api/misDatos", require("../routes/misDatos.routes"));
-
+    this.app.use("/api/comentarios", require("../routes/comentario.routes"));
   }
 
   initCronJobs() {
