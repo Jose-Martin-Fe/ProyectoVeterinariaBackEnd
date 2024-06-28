@@ -6,7 +6,13 @@ module.exports = multer({
   fileFilter: (req, file, cb) => {
     let ext = path.extname(file.originalname);
 
-    if (ext !== ".jpg" && ext !== ".jpeg" && ext !== ".png" && ext !== ".gif") {
+    if (
+      ext !== ".jpg" &&
+      ext !== ".jpeg" &&
+      ext !== ".png" &&
+      ext !== ".gif" &&
+      ext !== ".webp"
+    ) {
       cb(new Error("Extension no soportada"), false);
     } else {
       cb(null, true);

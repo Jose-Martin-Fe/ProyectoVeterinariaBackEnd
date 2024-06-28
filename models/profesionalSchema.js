@@ -25,17 +25,14 @@ const profesionalSchema = new Schema({
     type: String,
     required: true,
   },
-  foto: {
+  image: {
     type: String,
-    required: true,
   },
   descripcion: {
     type: String,
     required: true,
   },
-  comentarios: {
-    type: String,
-  },
+  comentarios: [{ type: String }],
   horario: [horarioSchema],
 });
 
