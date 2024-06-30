@@ -1,7 +1,6 @@
 const ProfesionalModel = require("../models/profesionalSchema");
 const cloudinary = require("../middleware/cloudinary");
 
-// Crear un nuevo profesional
 const crearProfesional = async (req, res) => {
   const { nombre, especialidad, descripcion, horario } = req.body;
 
