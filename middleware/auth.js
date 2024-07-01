@@ -12,8 +12,9 @@ module.exports = (role) => async (req, res, next) => {
     if (role === verifyToken.user.role) {
       req.idCart = verifyToken.user.idCart;
       req.idFav = verifyToken.user.idFav;
-      req.idRes = verifyToken.user.idRes;
       req.idUser = verifyToken.user.id;
+      req.idReservas = verifyToken.user.idReservas;
+      req.idMisDatos = verifyToken.user.idMisDatos;
       next();
     } else {
       return res
