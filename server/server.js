@@ -16,14 +16,7 @@ class Servidor {
   middleware() {
     this.app.use(express.json());
     this.app.use(morgan("dev"));
-    
- const corsOptions = {
-      origin: 'https://veterinaria-proyecto-final-front.vercel.app',
-      methods: ['GET', 'POST', 'PUT', 'DELETE'],
-      allowedHeaders: ['content-type', 'auth'],
-    };
-
-    this.app.use(cors(corsOptions));
+    this.app.use(cors());
   }
 
   routes() {
