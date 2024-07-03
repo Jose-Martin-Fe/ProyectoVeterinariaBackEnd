@@ -122,4 +122,5 @@ module.exports = {
   welcomeUser,
   recoveryPass,
   contacto,
+  contactoPlanes,
 };
