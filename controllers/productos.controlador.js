@@ -29,7 +29,6 @@ const getProductos = async (req, res) => {
 
     res.status(200).json({ products, count });
   } catch (error) {
-    console.error("Error al obtener productos:", error);
     res.status(500).json({ msg: "Error: Productos no encontrados", error });
   }
 };
@@ -59,7 +58,6 @@ const getOneProducto = async (req, res) => {
     }
     res.status(200).json({ msg: "Producto encontrado", product });
   } catch (error) {
-    console.log(error);
     res.status(500).json({ msg: "Error al buscar el producto", error });
   }
 };
@@ -76,7 +74,6 @@ const createProd = async (req, res) => {
     await newProduct.save();
     res.status(201).json({ msg: "Producto creado correctamente", newProduct });
   } catch (error) {
-    console.log(error);
     res.status(500).json({ msg: "Error: No se creó el producto", error });
   }
 };
@@ -98,7 +95,6 @@ const updateProd = async (req, res) => {
 
     res.status(200).json({ msg: "Producto Actualizado", updateProduct });
   } catch (error) {
-    console.log(error);
     res.status(500).json({ msg: "ERROR: NO se creo tu producto", error });
   }
 };
@@ -150,7 +146,6 @@ const searchProduct = async (req, res) => {
         : "No se encontraron productos que coincidan con el término de búsqueda",
     });
   } catch (error) {
-    console.error("Error al buscar productos", error);
     res.status(500).json({ msg: "Error al buscar productos", error });
   }
 };
