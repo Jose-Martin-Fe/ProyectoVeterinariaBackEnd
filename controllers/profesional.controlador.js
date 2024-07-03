@@ -23,18 +23,15 @@ const crearProfesional = async (req, res) => {
       profesionalGuardado,
     });
   } catch (error) {
-    console.error("Error al crear el profesional:", error);
     res.status(500).json({ message: "Error al crear el profesional" });
   }
 };
 
-// Obtener todos los profesionales
 const obtenerProfesionales = async (req, res) => {
   try {
     const profesionales = await ProfesionalModel.find();
     res.status(200).json(profesionales);
   } catch (error) {
-    console.error("Error al obtener los profesionales:", error);
     res.status(500).json({ message: "Error al obtener los profesionales" });
   }
 };
@@ -56,7 +53,6 @@ const actualizarProfesional = async (req, res) => {
 
     res.status(200).json({ msg: "Profesional Actualizado", actualizarProf });
   } catch (error) {
-    console.log(error);
     res
       .status(500)
       .json({ msg: "ERROR: NO se actualizo el profesional", error });
