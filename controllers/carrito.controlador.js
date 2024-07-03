@@ -9,7 +9,6 @@ const getCarrito = async (req, res) => {
     }
     res.status(200).json({ msg: "Carrito", cart });
   } catch (error) {
-    console.error("Error obteniendo el carrito:", error);
     res.status(500).json({ msg: "Error del servidor", error });
   }
 };
@@ -58,7 +57,6 @@ const agregarProducto = async (req, res) => {
 
     res.status(200).json({ msg: "Producto cargado con éxito", cartUser });
   } catch (error) {
-    console.error("Error al agregar el producto al carrito:", error);
     res.status(500).json({ msg: "Error del servidor", error });
   }
 };
@@ -87,7 +85,6 @@ const actualizarCantidad = async (req, res) => {
       .status(200)
       .json({ msg: "Cantidad actualizada exitosamente", cartUser });
   } catch (error) {
-    console.error("Error al actualizar la cantidad del producto:", error);
     res.status(500).json({ msg: "Error del servidor", error });
   }
 };
@@ -110,10 +107,8 @@ const eliminarProducto = async (req, res) => {
 
     cartUser.products.splice(productIndex, 1);
     await cartUser.save();
-
     res.status(200).json({ msg: "Producto eliminado del carrito", cartUser });
   } catch (error) {
-    console.error("Error al eliminar el producto del carrito:", error);
     res.status(500).json({ msg: "Error del servidor", error });
   }
 };
