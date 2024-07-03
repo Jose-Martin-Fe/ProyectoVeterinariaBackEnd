@@ -10,7 +10,6 @@ const getFavorito = async (req, res) => {
     }
     res.status(200).json({ msg: "Favorito", favorito });
   } catch (error) {
-    console.error("Error obteniendo el favorito:", error);
     res.status(500).json({ msg: "Error del servidor", error });
   }
 };
@@ -52,7 +51,6 @@ const agregarProductoFavs = async (req, res) => {
 
     res.status(200).json({ msg: "Producto cargado con éxito", favsUser });
   } catch (error) {
-    console.error("Error al agregar el producto al favorito:", error);
     res.status(500).json({ msg: "Error del servidor", error });
   }
 };
@@ -78,7 +76,6 @@ const eliminarProducto = async (req, res) => {
 
     res.status(200).json({ msg: "Producto eliminado del favorito", FavUser });
   } catch (error) {
-    console.error("Error al eliminar el producto del favorito:", error);
     res.status(500).json({ msg: "Error del servidor", error });
   }
 };
