@@ -33,7 +33,6 @@ const agregarOModificarDatosPersonales = async (req, res) => {
     );
     res.json(misDatos);
   } catch (error) {
-    console.error("Error al guardar o modificar los datos personales:", error);
     res
       .status(500)
       .json({ msg: "Error al guardar o modificar los datos personales." });
