@@ -27,7 +27,6 @@ const crearProfesional = async (req, res) => {
   }
 };
 
-
 const obtenerProfesionales = async (req, res) => {
   try {
     const profesionales = await ProfesionalModel.find();

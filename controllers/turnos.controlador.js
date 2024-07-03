@@ -91,9 +91,8 @@ const crearTurno = async (req, res) => {
     await turnoUsuario.save();
 
     res.status(201).json(turnoUsuario);
-  } catch (err) {
-    console.error("Error al crear el turno:", err);
-    res.status(500).json({ message: "Error al crear el turno" });
+  } catch (error) {
+    res.status(500).json({ message: "Error al crear el turno", error });
   }
 };
 
@@ -135,8 +134,8 @@ const obtenerHorariosDisponibles = async (req, res) => {
     }
 
     res.json(horariosDisponibles);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -161,7 +160,6 @@ const eliminarReserva = async (req, res) => {
       .status(200)
       .json({ msg: "Reserva eliminada correctamente", turnoUsuario });
   } catch (error) {
-    console.error("Error al eliminar la reserva:", error);
     res.status(500).json({ msg: "Error del servidor", error });
   }
 };
@@ -183,8 +181,8 @@ const adminObtenerTurnos = async (req, res) => {
     );
 
     res.json(turnosConDatosPersonales);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -209,7 +207,6 @@ const adminEliminarReserva = async (req, res) => {
       .status(200)
       .json({ msg: "Reserva eliminada correctamente", turnoUsuario });
   } catch (error) {
-    console.error("Error al eliminar la reserva:", error);
     res.status(500).json({ msg: "Error del servidor", error });
   }
 };
