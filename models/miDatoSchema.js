@@ -5,25 +5,19 @@ const misDatosSchema = new Schema({
     type: Types.ObjectId,
     required: true,
   },
-  nombre: {
-    type: String,
-    required: true,
-    default: "Nombre",
-  },
-  apellido: {
-    type: String,
-    required: true,
-    default: "Apellido",
-  },
-  mail: {
-    type: String,
-    required: true,
-    default: "maildefault@gmail.com",
-  },
-  telefono: {
-    type: String,
-    required: true,
-    default: "1234567890",
+  datosPersonales: {
+    nombre: {
+      type: String,
+    },
+    apellido: {
+      type: String,
+    },
+    mail: {
+      type: String,
+    },
+    telefono: {
+      type: String,
+    },
   },
 });
 

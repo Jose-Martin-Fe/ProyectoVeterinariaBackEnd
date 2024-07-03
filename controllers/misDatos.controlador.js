@@ -1,5 +1,6 @@
 const MisDatosModel = require("../models/miDatoSchema");
 const MascotaModel = require("../models/miMascotaSchema");
+const userModel = require("../models/userSchema");
 
 const obtenerDatosPersonales = async (req, res) => {
   const { idUser } = req.params;
@@ -21,35 +22,21 @@ const obtenerDatosPersonales = async (req, res) => {
 };
 
 const agregarOModificarDatosPersonales = async (req, res) => {
-  if (!req.body.misDatos) {
-    return res.status(400).json({
-      message:
-        "Datos personales no proporcionados en el cuerpo de la solicitud",
-    });
-  }
-  const { idUser, nombre, apellido, mail, telefono } = req.body.misDatos;
+  const { idUser } = req.params;
+  const { datosPersonales } = req.body;
+
   try {
-    let datosPersonales = await MisDatosModel.findOne({ idUser });
-    if (!datosPersonales) {
-      datosPersonales = new MisDatosModel({
-        idUser,
-        nombre,
-        apellido,
-        mail,
-        telefono,
-      });
-    } else {
-      datosPersonales.nombre = nombre;
-      datosPersonales.apellido = apellido;
-      datosPersonales.mail = mail;
-      datosPersonales.telefono = telefono;
-    }
-    await datosPersonales.save();
-    res.status(201).json(datosPersonales);
+    const misDatos = await MisDatosModel.findOneAndUpdate(
+      { idUser },
+      { datosPersonales },
+      { new: true, upsert: true }
+    );
+    res.json(misDatos);
   } catch (error) {
+    console.error("Error al guardar o modificar los datos personales:", error);
     res
       .status(500)
-      .json({ message: "Error al guardar los datos personales", error });
+      .json({ msg: "Error al guardar o modificar los datos personales." });
   }
 };
 
@@ -100,69 +87,80 @@ const eliminarMascota = async (req, res) => {
   }
 };
 
-const obtenerTodosLosUsuarios = async (req, res) => {
+const obtenerTodosLosUsuariosAdmin = async (req, res) => {
   try {
-    const usuarios = await MisDatosModel.find();
+    const usuarios = await userModel.find({ role: "user" });
     const usuariosConMascotas = await Promise.all(
       usuarios.map(async (usuario) => {
-        const mascotas = await MascotaModel.find({ ownerId: usuario._id });
-        return { ...usuario.toObject(), mascotas };
+        const datosPersonales = await MisDatosModel.findOne({
+          idUser: usuario._id,
+        });
+        if (!datosPersonales) {
+          return null;
+        }
+        const mascotas = await MascotaModel.find({
+          ownerId: datosPersonales._id,
+        });
+        return { ...datosPersonales.toObject(), mascotas };
       })
     );
-    res.status(200).json(usuariosConMascotas);
+    const usuariosFiltrados = usuariosConMascotas.filter(
+      (usuario) => usuario !== null
+    );
+    res.status(200).json(usuariosFiltrados);
   } catch (error) {
     res.status(500).json({ message: "Error al obtener los usuarios", error });
   }
 };
 
-const modificarDatosPersonalesYMascota = async (req, res) => {
-  const { misDatos, mascota } = req.body;
+module.exports = {
+  obtenerTodosLosUsuariosAdmin,
+};
+
+const modificarDatosPersonalesYMascotaAdmin = async (req, res) => {
+  const { idUser } = req.params;
+  const { datosPersonales, mascota } = req.body;
 
   try {
-    // Modificar datos personales
-    let datosPersonales = await MisDatosModel.findOne({ idUser });
-    if (!datosPersonales) {
-      datosPersonales = new MisDatosModel({
-        idUser,
-        nombre: misDatos.nombre,
-        apellido: misDatos.apellido,
-        mail: misDatos.mail,
-        telefono: misDatos.telefono,
-      });
-    } else {
-      datosPersonales.nombre = misDatos.nombre;
-      datosPersonales.apellido = misDatos.apellido;
-      datosPersonales.mail = misDatos.mail;
-      datosPersonales.telefono = misDatos.telefono;
-    }
-    await datosPersonales.save();
+    const misDatos = await MisDatosModel.findOneAndUpdate(
+      { idUser },
+      { datosPersonales },
+      { new: true, upsert: true }
+    );
 
-    // Modificar mascota
-    if (mascota._id) {
-      let mascotaExistente = await MascotaModel.findById(mascota._id);
-      if (mascotaExistente) {
-        Object.assign(mascotaExistente, mascota);
-        await mascotaExistente.save();
-        return res.status(200).json({
-          datosPersonales,
-          mascota: mascotaExistente,
-        });
+    if (!misDatos) {
+      return res
+        .status(404)
+        .json({ message: "Datos personales no encontrados" });
+    }
+
+    if (mascota) {
+      if (mascota._id) {
+        let mascotaExistente = await MascotaModel.findById(mascota._id);
+        if (mascotaExistente) {
+          Object.assign(mascotaExistente, mascota);
+          await mascotaExistente.save();
+          return res.status(200).json({ misDatos, mascota: mascotaExistente });
+        }
       }
+
+      const nuevaMascota = new MascotaModel({
+        ...mascota,
+        ownerId: misDatos._id,
+      });
+      await nuevaMascota.save();
+      return res.status(201).json({ misDatos, mascota: nuevaMascota });
     }
 
-    const nuevaMascota = new MascotaModel({
-      ...mascota,
-      ownerId: datosPersonales._id,
-    });
-    await nuevaMascota.save();
-
-    res.status(201).json({
-      datosPersonales,
-      mascota: nuevaMascota,
-    });
+    res.json(misDatos);
   } catch (error) {
-    res.status(500).json({ message: "Error al modificar datos", error });
-    console.log(error);
+    console.error(
+      "Error al guardar o modificar los datos personales o mascota:",
+      error
+    );
+    res.status(500).json({
+      msg: "Error al guardar o modificar los datos personales o mascota.",
+    });
   }
 };
 
@@ -171,6 +169,6 @@ module.exports = {
   agregarOModificarDatosPersonales,
   agregarOModificarMascota,
   eliminarMascota,
-  obtenerTodosLosUsuarios,
-  modificarDatosPersonalesYMascota,
+  obtenerTodosLosUsuariosAdmin,
+  modificarDatosPersonalesYMascotaAdmin,
 };
