@@ -13,7 +13,7 @@ const getAllUser = async (req, res) => {
     const getUsers = await userModel.find();
     res.status(200).json({ msg: "Usuarios encontrados", getUsers });
   } catch (error) {
-    console.log(error);
+        res.status(500).json({ msg: "Error al obtener todos los usuarios" });
   }
 };
 
@@ -42,7 +42,6 @@ const createUser = async (req, res) => {
       return res.status(400).json({ msg: "Usuario no disponible" });
     }
 
-    console.log("Validaciones de correo y usuario pasadas...");
 
     const newUser = new userModel(req.body);
     const newCart = new CarritoModel({ idUser: newUser._id });
@@ -67,8 +66,6 @@ const createUser = async (req, res) => {
         .json({ msg: "Error al enviar correo de bienvenida" });
     }
 
-    console.log("Correo de bienvenida enviado...");
-
     await newCart.save();
     await newFavs.save();
     await newTurno.save();
@@ -77,7 +74,6 @@ const createUser = async (req, res) => {
 
     res.status(201).json({ msg: "Usuario Registrado", newUser });
   } catch (error) {
-    console.error("Error al crear el usuario:", error);
     res.status(400).json({ msg: "Error al crear el usuario" });
   }
 };
@@ -130,7 +126,6 @@ const loginUser = async (req, res) => {
       id: userExist._id,
     });
   } catch (error) {
-    console.error(error);
     return res.status(500).json({ msg: "Error al crear el usuario", error });
   }
 };
@@ -151,7 +146,6 @@ const deleteLogic = async (req, res) => {
       user,
     });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ msg: "Error al actualizar el estado del usuario" });
   }
 };
@@ -164,7 +158,6 @@ const deletePhysically = async (req, res) => {
     }
     res.status(200).json({ msg: "Usuario eliminado físicamente" });
   } catch (error) {
-    console.log(error);
     res.status(500).json({ msg: "Error al eliminar el usuario" });
   }
 };
@@ -196,7 +189,6 @@ const updateUser = async (req, res) => {
 
     res.status(200).json({ msg: "Usuario actualizado", updatedUser });
   } catch (error) {
-    console.error("Error al actualizar el usuario:", error);
     res.status(400).json({ msg: "Error al actualizar el usuario" });
   }
 };
