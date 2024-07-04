@@ -22,6 +22,6 @@ module.exports = (role) => async (req, res, next) => {
         .json({ msg: "No estas autorizado para este endpoint" });
     }
   } catch (error) {
-    console.log(error);
+    res.status(500).json({ msg: "Error al obtener el token", error });
   }
 };

@@ -33,7 +33,6 @@ class Servidor {
   }
 
   initCronJobs() {
-    // Iniciar el job para eliminar turnos pasados
     eliminarTurnosPasados.start();
   }
 

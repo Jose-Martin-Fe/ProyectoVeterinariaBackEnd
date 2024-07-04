@@ -21,7 +21,6 @@ const agregarProducto = async (req, res) => {
       return res.status(404).json({ msg: "Producto no encontrado" });
     }
 
-    console.log("ID del carrito del usuario:", req.idCart);
     const cartUser = await CarritoModel.findById(req.idCart);
     if (!cartUser) {
       return res.status(404).json({ msg: "Carrito no encontrado" });
