@@ -22,7 +22,7 @@ const turnoSchema = new Schema({
         default: "No especificado",
       },
       fecha: {
-        type: Date, // Cambiado a tipo Date para almacenar la fecha correctamente
+        type: Date,
         required: true,
       },
       hora: {

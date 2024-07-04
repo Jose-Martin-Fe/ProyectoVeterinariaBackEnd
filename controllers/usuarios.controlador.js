@@ -24,7 +24,6 @@ const createUser = async (req, res) => {
   }
 
   try {
-    console.log("Iniciando creación de usuario...");
 
     const emailExist = await userModel.findOne({
       emailUsuario: req.body.emailUsuario,
@@ -56,8 +55,6 @@ const createUser = async (req, res) => {
     newUser.idFav = newFavs._id;
     newUser.idReservas = newTurno._id;
     newUser.idMisDatos = newMisDatos._id;
-
-    console.log("Hashes y referencias de ID asignadas...");
 
     const resultMessage = await welcomeUser(req.body.emailUsuario);
     if (resultMessage !== 200) {
