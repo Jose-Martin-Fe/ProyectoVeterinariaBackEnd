@@ -173,16 +173,22 @@ const adminObtenerTurnos = async (req, res) => {
         const datosPersonales = await MisDatosModel.findOne({
           idUser: turno.idUser._id,
         });
+
+        const { datosPersonales: dpAnidados, ...turnoRestante } =
+          turno.toObject();
         return {
-          ...turno.toObject(),
-          datosPersonales: datosPersonales ? datosPersonales.toObject() : null,
+          ...turnoRestante,
+          idUser: turno.idUser,
+          datosPersonales: datosPersonales
+            ? datosPersonales.toObject().datosPersonales
+            : null,
         };
       })
     );
 
-    res.json(turnosConDatosPersonales);
+    res.status(200).json(turnosConDatosPersonales);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: "Error al obtener los turnos", error });
   }
 };
 
