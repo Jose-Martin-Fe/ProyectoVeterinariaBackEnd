@@ -1,6 +1,6 @@
-# RollingVet Backend
+# Veterinaria Patas y Garras Backend
 
-Este proyecto es el backend del sistema RollingVet, una aplicación para gestionar la carga y administración de pacientes y la reserva de turnos de una veterinaria.
+Este proyecto es el backend del sistema Veterinaria Patas y Garras, una aplicación para gestionar la carga y administración de pacientes y la reserva de turnos de una veterinaria. Además se mostrará una sección informativa donde se exhibirá información de la veterinaria, servicios y productos que ofrece.
 
 ## Tabla de Contenidos
 
